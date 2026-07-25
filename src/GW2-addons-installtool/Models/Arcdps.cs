@@ -17,4 +17,14 @@ public class Arcdps
         Id = _id;
         dps_name = _dps_name;
     }
+
+    public Arcdps(int _id, string _dps_descr, string _dps_name, string _urlpath, string _md5, int _size)
+    {
+        Id = _id;
+        dps_descr = _dps_descr;
+        dps_name = _dps_name;
+        Urlpath = _urlpath;
+        Md5st = _md5;
+        Filesize = _size;
+    }
 }

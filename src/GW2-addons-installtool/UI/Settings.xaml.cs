@@ -1,7 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Navigation;
 using Microsoft.Win32;
 using GW2_addons_installtool.Models;
 using GW2_addons_installtool.Services;
@@ -20,82 +21,48 @@ public partial class Settings : Page
     public Settings()
     {
         InitializeComponent();
-
-        if (Global.GamePath == "未设置" || string.IsNullOrEmpty(Global.GamePath))
-        {
-            nextPage_Copy1.Visibility = Visibility.Visible;
-            nextPage.Visibility = Visibility.Hidden;
-            nextPage_Copy3.Visibility = Visibility.Hidden;
-        }
-        else
-        {
-            nextPage_Copy1.Visibility = Visibility.Hidden;
-            nextPage.Visibility = Visibility.Visible;
-            nextPage_Copy3.Visibility = Visibility.Visible;
-        }
-
+        Global.Loadall();
+        label.Content = "工具版本: v" + Global.Toolversion;
         labebox1.Text = Global.GamePath;
+        tuijiandps.Visibility = Visibility.Hidden;
 
-        if (string.IsNullOrEmpty(Global.fileday))
+        if (Global.reshademode == 0)
         {
-            Global.apigetok = false;
+            BtnReShadeMode1.IsChecked = true;
+            BtnReShadeMode2.IsChecked = false;
         }
-        else
+        else if (Global.reshademode == 1)
         {
-            descriptioninfo.Text = Global.helpinfo;
-        }
-
-        if (Global.updatevisible == 0)
-        {
-            label.Content = "工具版本: v" + Global.Toolversion;
-            label1.Visibility = Visibility.Hidden;
-            label2.Visibility = Visibility.Hidden;
-            update_self_button.Visibility = Visibility.Hidden;
-            jindu.Visibility = Visibility.Hidden;
-        }
-        else if (Global.updatevisible == 1)
-        {
-            label.Content = "有新版本: v" + Global.Toolversion_get;
-            label1.Foreground = new SolidColorBrush(Colors.Red);
-            jindu.Visibility = Visibility.Hidden;
+            BtnReShadeMode1.IsChecked = false;
+            BtnReShadeMode2.IsChecked = true;
         }
 
         if (Global.installpluginmode == 0)
         {
+            BtnNexus.IsChecked = false;
             BtnNormal.IsChecked = true;
-            nowinstallmodedesc.Content = "当前: 正常模式";
+            BtnTrouble.IsChecked = false;
+            nowinstallmodedesc.Content = "模式: 正常模式";
         }
         else if (Global.installpluginmode == 1)
         {
+            BtnNexus.IsChecked = false;
+            BtnNormal.IsChecked = false;
             BtnTrouble.IsChecked = true;
-            nowinstallmodedesc.Content = "当前: 疑难模式";
+            nowinstallmodedesc.Content = "模式: 疑难模式";
         }
         else if (Global.installpluginmode == 2)
         {
             BtnNexus.IsChecked = true;
-            nowinstallmodedesc.Content = "当前: Nexus模式";
+            BtnNormal.IsChecked = false;
+            BtnTrouble.IsChecked = false;
+            nowinstallmodedesc.Content = "模式: Nexus模式";
         }
 
-        if (Global.installdpsmode == 1)
-        {
-            ArcdpslistComboBox.Visibility = Visibility.Hidden;
-            tuijiandps.Visibility = Visibility.Visible;
-            labe1_1.Content = string.IsNullOrEmpty(Global.fileday) ? "推荐版本：正在获取中..." : "推荐版本：" + Global.fileday;
-        }
-        else if (Global.installdpsmode == 2)
-        {
-            ArcdpslistComboBox.Visibility = Visibility.Visible;
-            tuijiandps.Visibility = Visibility.Hidden;
-        }
-
-        if (Global.reshademode == 1)
-        {
-            BtnReShadeMode1.IsChecked = true;
-        }
-        else if (Global.reshademode == 2)
-        {
-            BtnReShadeMode2.IsChecked = true;
-        }
+        label1.Visibility = Visibility.Hidden;
+        label2.Visibility = Visibility.Hidden;
+        update_self_button.Visibility = Visibility.Hidden;
+        jindu.Visibility = Visibility.Hidden;
 
         Task.Run(() => getwebinfomx());
     }
@@ -115,7 +82,6 @@ public partial class Settings : Page
                     MessageBox.Show("未获取到工具最新版本信息!您的网络可能有问题,请重启本工具再试一次");
                     Dispatcher.Invoke(() =>
                     {
-                        descriptioninfo.Text = "未获取到工具最新版本信息!您的网络可能有问题,请重启本工具再试一次";
                         label1.Visibility = Visibility.Hidden;
                         label2.Visibility = Visibility.Hidden;
                         update_self_button.Visibility = Visibility.Hidden;
@@ -159,17 +125,11 @@ public partial class Settings : Page
                 {
                     MessageBox.Show(Global.lastarcdpsmd5, "服务器消息 - 警告");
                 }
-
-                Dispatcher.Invoke(() =>
-                {
-                    descriptioninfo.Text = Global.helpinfo;
-                });
             }
             else
             {
                 Dispatcher.Invoke(() =>
                 {
-                    descriptioninfo.Text = "获取信息失败!请尝试重启本工具";
                     labe1.Foreground = new SolidColorBrush(Colors.Red);
                     nextPage.Visibility = Visibility.Hidden;
                     nextPage_Copy3.Visibility = Visibility.Hidden;
@@ -248,85 +208,98 @@ public partial class Settings : Page
                     }
                 });
 
-                if (Global.Addons.Count > 0)
+                foreach (Asset asset2 in giteeApi.Assets)
                 {
-                    Global.tuijianarcdpsurl = Global.Addons[0].Urlpath;
-                    Global.tuijianarcdpsmd5 = Global.Addons[0].Md5st;
-                    Global.tuijianarcdpssiz = Global.Addons[0].Filesize;
+                    if (asset2.Name.Equals("peizi.zip", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Global.Addons[15].Urlpath = asset2.BrowserDownloadUrl;
+                    }
+                    if (asset2.Name.Equals("d3d11.zip", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Global.tuijianarcdpsurl = asset2.BrowserDownloadUrl;
+                    }
+                    if (asset2.Name.Equals("nexus_arcdps.dll", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Global.Addons[13].Urlpath = asset2.BrowserDownloadUrl;
+                    }
+                    if (asset2.Name.Equals("d3d9.zip", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Global.Addons[14].Urlpath = asset2.BrowserDownloadUrl;
+                    }
                 }
             }
             catch (Exception ex2)
             {
-                MessageBox.Show("解析获取的API数据出错\n\n错误原因: " + ex2.Message, "解析获取的 API 错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("解析数据内容出错\n\n错误原因: " + ex2.Message, "解析 API数据 错误", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }
-        catch (Exception ex3)
-        {
-            MessageBox.Show("获取服务器信息出现错误(网络超时或Gitee API无法访问)\n\n错误原因: " + ex3.Message, "链接 Gitee API 错误", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-
-        using HttpClient client2 = new HttpClient();
-        try
-        {
-            string url2 = "https://gitee.com/api/v5/repos/jiangyi0923/arcdpslist/releases/latest?access_token=ea9e8776dbc01bd019ca905d0418c6bf";
-            HttpResponseMessage val2 = await client2.GetAsync(url2, HttpCompletionOption.ResponseHeadersRead);
-            string json2 = await val2.Content.ReadAsStringAsync();
 
             try
             {
-                GiteeApi giteeApi2 = GiteeApi.FromJson(json2);
-                try
-                {
-                    Listbodyapi bodyApi2 = Listbodyapi.FromJson(giteeApi2.Body);
-                    Dispatcher.Invoke(() =>
-                    {
-                        Global.Arcdpslists.Clear();
-                        for (int i = 0; i < bodyApi2.Files.Length; i++)
-                        {
-                            Global.Arcdpslists.Add(new Arcdps(i, ""));
-                        }
-                        foreach (Arcdps arcdpslist in Global.Arcdpslists)
-                        {
-                            foreach (LFiles lFiles in bodyApi2.Files)
-                            {
-                                if (lFiles.Id == arcdpslist.Id)
-                                {
-                                    arcdpslist.dps_name = lFiles.Name;
-                                    arcdpslist.Md5st = lFiles.Md5;
-                                    arcdpslist.Filesize = lFiles.Size;
-                                    arcdpslist.dps_descr = lFiles.Description;
-                                }
-                            }
-                        }
-                    });
-                }
-                catch (Exception ex4)
-                {
-                    MessageBox.Show("解析获取的API数据内容出错\n\n错误原因1: " + ex4.Message, "解析获取的 API数据 错误1", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                string url2 = "https://gitee.com/api/v5/repos/xiejunyc/gw2chajianfile/releases/tags/arcdpslist?access_token=fd5851191878d04a089903e34ce8a003";
+                HttpResponseMessage val2 = await client.GetAsync(url2, HttpCompletionOption.ResponseHeadersRead);
+                string json2 = await val2.Content.ReadAsStringAsync();
+                Listbodyapi listbodyapi = Listbodyapi.FromJson(GiteeApi.FromJson(json2).Body);
 
                 Dispatcher.Invoke(() =>
                 {
-                    foreach (Arcdps arcdpslist2 in Global.Arcdpslists)
+                    int num = 0;
+                    Global.Arcdpslists.Clear();
+                    foreach (LFiles file in listbodyapi.Files)
                     {
-                        foreach (Asset asset in giteeApi2.Assets)
+                        Global.Arcdpslists.Add(new Arcdps(num, file.Description, file.Name, "", file.Md5, file.Size));
+                        num++;
+                    }
+                });
+
+                Dispatcher.Invoke(() =>
+                {
+                    foreach (Arcdps arcdpslist in Global.Arcdpslists)
+                    {
+                        foreach (Asset asset3 in GiteeApi.FromJson(json2).Assets)
                         {
-                            if (!asset.BrowserDownloadUrl.Contains("0923.zip") && asset.Name.Equals(arcdpslist2.dps_name, StringComparison.OrdinalIgnoreCase))
+                            if (asset3.Name.Equals(arcdpslist.dps_name, StringComparison.OrdinalIgnoreCase))
                             {
-                                arcdpslist2.Urlpath = asset.BrowserDownloadUrl;
+                                arcdpslist.Urlpath = asset3.BrowserDownloadUrl;
                             }
                         }
                     }
                 });
+
+                foreach (Asset asset4 in GiteeApi.FromJson(json).Assets)
+                {
+                    if (asset4.Name.Equals("d3d11.zip", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Global.tuijianarcdpsurl = asset4.BrowserDownloadUrl;
+                    }
+                    if (asset4.Name.Equals("d3d11.zip.md5sum", StringComparison.OrdinalIgnoreCase))
+                    {
+                        HttpResponseMessage val3 = await client.GetAsync(asset4.BrowserDownloadUrl, HttpCompletionOption.ResponseHeadersRead);
+                        Global.tuijianarcdpsmd5 = (await val3.Content.ReadAsStringAsync()).Replace("\n", "").Replace("\r", "").Replace(" ", "");
+                    }
+                }
+
+                foreach (Asset asset5 in GiteeApi.FromJson(json2).Assets)
+                {
+                    if (asset5.Name.Equals("d3d11.zip", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Global.lastarcdpsurl = asset5.BrowserDownloadUrl;
+                    }
+                    if (asset5.Name.Equals("d3d11.zip.md5sum", StringComparison.OrdinalIgnoreCase))
+                    {
+                        HttpResponseMessage val4 = await client.GetAsync(asset5.BrowserDownloadUrl, HttpCompletionOption.ResponseHeadersRead);
+                        Global.lastarcdpsmd5 = (await val4.Content.ReadAsStringAsync()).Replace("\n", "").Replace("\r", "").Replace(" ", "");
+                        Global.lastarcdpssiz = 1;
+                    }
+                }
             }
-            catch (Exception ex5)
+            catch (Exception ex3)
             {
-                MessageBox.Show("解析获取的API数据出错\n\n错误原因2: " + ex5.Message, "解析获取的 API 错误2", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("获取历史DPS版本信息出错\n\n错误原因: " + ex3.Message, "历史DPS版本解析 错误", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        catch (Exception ex6)
+        catch (Exception ex4)
         {
-            MessageBox.Show("获取服务器信息出现错误(网络超时或Gitee API无法访问)3\n\n错误原因: " + ex6.Message, "链接 Gitee API 错误3", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show("网络链接错误!\r\n请尝试重启本工具或稍后重试\r\n错误信息: " + ex4.Message, "网络连接 错误", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -341,14 +314,6 @@ public partial class Settings : Page
     private void close_clicked(object sender, RoutedEventArgs e)
     {
         Iniflie.Save();
-        if (Global.updatevisible == 3)
-        {
-            try
-            {
-                Process.Start("Updater.exe");
-            }
-            catch { }
-        }
         Application.Current.Shutdown();
     }
 
@@ -362,8 +327,6 @@ public partial class Settings : Page
 
     private void getpatch_button_clicked(object sender, RoutedEventArgs e)
     {
-        MessageBox.Show("空中网,美服客户端请选择bin64文件夹的上级目录\r\n不是喊你选bin64文件夹!!!!\r\n不是喊你选bin64文件夹!!!!\r\n不是喊你选bin64文件夹!!!!\r\nWG请选择\"Guild_Wars_2(2001128)\"类似目录\r\n心游请选择\"心游登录器\"所在位置的\"data\"目录");
-
         OpenFolderDialog dialog = new OpenFolderDialog
         {
             Title = "选择激战2游戏根目录"
@@ -372,58 +335,101 @@ public partial class Settings : Page
         if (dialog.ShowDialog() == true)
         {
             string selectedPath = dialog.FolderName;
-            bool hasNonAscii = false;
-            foreach (char c in selectedPath)
+            if (File.Exists(Path.Combine(selectedPath, "Gw2-64.exe")))
             {
-                if (c > 127)
-                {
-                    hasNonAscii = true;
-                    break;
-                }
-            }
-
-            if (!hasNonAscii)
-            {
-                if (!File.Exists(Path.Combine(selectedPath, "Gw2-64.exe")))
-                {
-                    MessageBox.Show($"所选目录路径未发现Gw2-64.exe文件\r\n您选择的路径:{selectedPath}\r\n", "未发现Gw2-64.exe");
-                    return;
-                }
                 Global.GamePath = selectedPath;
                 labebox1.Text = Global.GamePath;
-                nextPage_Copy1.Visibility = Visibility.Hidden;
-                nextPage.Visibility = Visibility.Visible;
-                nextPage_Copy3.Visibility = Visibility.Visible;
             }
             else
             {
-                MessageBox.Show($"所选目录路径含有中文字符,请更改后尝试\r\n正确路径样式:C:\\Program Files\\Guild Wars 2\r\n您选择的路径:{selectedPath}\r\n", "目录识别错误!");
+                MessageBox.Show($"所选目录路径含有中文字符或未找到 Gw2-64.exe\r\n正确路径样式:C:\\Program Files\\Guild Wars 2\r\n您选择的路径:{selectedPath}\r\n", "目录识别错误!");
             }
         }
-    }
-
-    private void getpatch_button_clicked2(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            Process.Start(new ProcessStartInfo("https://docs.qq.com/doc/p/6dc57d3768b5fb2d99347210df532d35be24cd00") { UseShellExecute = true });
-        }
-        catch { }
     }
 
     private void options_button_clicked(object sender, RoutedEventArgs e)
     {
-        if (Global.updatevisible == 2)
+        qqGroupLabel.Content = string.IsNullOrEmpty(Global.qqgroup) ? "未获取到" : Global.qqgroup;
+        string arcdpsIni = Path.Combine(Global.GamePath, @"addons\arcdps\arcdps.ini");
+        if (File.Exists(arcdpsIni))
         {
-            MessageBox.Show("此功能当前不可用\r\n请耐心等待本工具更新完成!", "提醒!");
+            if (int.TryParse(Iniflie.Read("font", "size", "13", arcdpsIni), out int size))
+            {
+                fontSizeSlider.Value = size;
+            }
         }
-        else if (Global.updatevisible == 3)
+        optionsPopup.IsOpen = true;
+    }
+
+    private void closeOptions_Click(object sender, RoutedEventArgs e)
+    {
+        optionsPopup.IsOpen = false;
+    }
+
+    private void fontSizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        string arcdpsIni = Path.Combine(Global.GamePath, @"addons\arcdps\arcdps.ini");
+        if (File.Exists(arcdpsIni))
         {
-            MessageBox.Show("此功能当前不可用\r\n请关闭本工具,并等待20秒(后台静默更新),再重新打开本工具!", "提醒!");
+            Iniflie.Write("font", "size", ((int)fontSizeSlider.Value).ToString(), arcdpsIni);
+        }
+    }
+
+    private void RecoverDT_button_Click(object sender, RoutedEventArgs e)
+    {
+        string arcdpsLangIni = Path.Combine(Global.GamePath, @"addons\arcdps\arcdps_lang.ini");
+        if (File.Exists(arcdpsLangIni))
+        {
+            Iniflie.Write("lang", "703", "团队统计-", arcdpsLangIni);
+            MessageBox.Show("已恢复默认标题栏", "成功");
         }
         else
         {
-            NavigationService?.Navigate(new Uri("UI/Options.xaml", UriKind.Relative));
+            MessageBox.Show("未找到 arcdps_lang.ini 配置文件", "提醒");
+        }
+    }
+
+    private void uninstall_clicked_Click(object sender, RoutedEventArgs e)
+    {
+        if (MessageBox.Show("确定要卸载当前已安装的插件吗？", "确认卸载", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+        {
+            try
+            {
+                string bin64 = Path.Combine(Global.GamePath, "bin64");
+                string[] targetFiles = new string[] { "d3d9.dll", "dxgi.dll", "d3d11.dll", "addonLoader.dll", "ArcDPS.dll" };
+                foreach (string f in targetFiles)
+                {
+                    string p1 = Path.Combine(Global.GamePath, f);
+                    if (File.Exists(p1)) File.Delete(p1);
+                    string p2 = Path.Combine(bin64, f);
+                    if (File.Exists(p2)) File.Delete(p2);
+                }
+                MessageBox.Show("插件卸载完成", "卸载成功");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("卸载失败: " + ex.Message);
+            }
+        }
+    }
+
+    private void uninstall_config_Click(object sender, RoutedEventArgs e)
+    {
+        if (MessageBox.Show("确定要删除所有插件的配置文件吗？", "确认删除", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+        {
+            try
+            {
+                string addonsDir = Path.Combine(Global.GamePath, "addons");
+                if (Directory.Exists(addonsDir))
+                {
+                    Directory.Delete(addonsDir, recursive: true);
+                }
+                MessageBox.Show("配置文件已删除", "成功");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("删除失败: " + ex.Message);
+            }
         }
     }
 
@@ -466,7 +472,6 @@ public partial class Settings : Page
         {
             Global.Addons[13].IsSelected = true;
             Global.Addons[14].IsSelected = false;
-            MessageBox.Show("请勿在游戏内点击插件弹出的更新提示按钮！！！！！！\r\n\r\n为了更高的兼容性,请您确认您的游戏已设置：窗口全屏模式\r\n\r\n如果安装无效请选择其他安装模式", "安装提醒!");
         }
         else if (Global.installpluginmode == 1)
         {
@@ -476,7 +481,6 @@ public partial class Settings : Page
             {
                 Global.Addons[index].IsSelected = false;
             }
-            MessageBox.Show("请勿在游戏内点击插件弹出的更新提示按钮！！！！！！\r\n\r\n为了更高的兼容性,请您确认您的游戏已设置：窗口全屏模式\r\n\r\n滤镜模式一安装ReShade滤镜可能无效\r\n\r\n滤镜无效时可尝试选择滤镜模式二", "安装提醒!");
         }
         else if (Global.installpluginmode == 2)
         {
@@ -486,7 +490,6 @@ public partial class Settings : Page
                 Global.Addons[index2].IsSelected = false;
             }
             Global.Addons[14].IsSelected = true;
-            MessageBox.Show("请勿在游戏内点击插件弹出的更新提示按钮！！！！！！\r\n\r\n为了更高的兼容性,请您确认您的游戏已设置：窗口全屏模式\r\n\r\n滤镜模式一安装ReShade滤镜可能无效\r\n\r\n滤镜无效时可尝试选择滤镜模式二", "安装提醒!");
         }
 
         if (Global.installdpsmode == 1)
@@ -505,32 +508,58 @@ public partial class Settings : Page
         NavigationService?.Navigate(new Uri("UI/Install.xaml", UriKind.Relative));
     }
 
-    private void addOnList_SelectedIndexChanged(object sender, SelectionChangedEventArgs e)
+    private void update_self_click(object sender, RoutedEventArgs e)
     {
-        if (addons.SelectedIndex >= 0 && addons.SelectedIndex < Global.Addons.Count)
-        {
-            Addon selected = Global.Addons[addons.SelectedIndex];
-            descriptioninfo.Text = selected.DescriptionText;
-        }
     }
 
-    private void addonschanged(object sender, RoutedEventArgs e)
+    private void installmode_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is CheckBox checkBox && checkBox.DataContext is Addon addon)
+        if (sender is ToggleButton toggleButton)
         {
-            // Update addon selections
+            if (toggleButton == BtnNexus)
+            {
+                Global.installpluginmode = 2;
+                BtnNexus.IsChecked = true;
+                BtnNormal.IsChecked = false;
+                BtnTrouble.IsChecked = false;
+                nowinstallmodedesc.Content = "模式: Nexus模式";
+            }
+            else if (toggleButton == BtnNormal)
+            {
+                Global.installpluginmode = 0;
+                BtnNexus.IsChecked = false;
+                BtnNormal.IsChecked = true;
+                BtnTrouble.IsChecked = false;
+                nowinstallmodedesc.Content = "模式: 正常模式";
+            }
+            else if (toggleButton == BtnTrouble)
+            {
+                Global.installpluginmode = 1;
+                BtnNexus.IsChecked = false;
+                BtnNormal.IsChecked = false;
+                BtnTrouble.IsChecked = true;
+                nowinstallmodedesc.Content = "模式: 疑难模式";
+            }
         }
+        installmodeMenuPopup.IsOpen = false;
     }
 
-    private void ArcdpslistComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void ReShadeMode_Click(object sender, RoutedEventArgs e)
     {
-        descriptioninfo.Text = Global.helpinfo;
-        if (ArcdpslistComboBox.SelectedItem is Arcdps arcdps)
+        if (sender is ToggleButton toggleButton)
         {
-            Global.selectedarcdpsid = arcdps.Id;
-            Global.selectedarcdpsurl = arcdps.Urlpath;
-            Global.selectedarcdpsmd5 = arcdps.Md5st;
-            Global.selectedarcdpssiz = arcdps.Filesize;
+            if (toggleButton == BtnReShadeMode1)
+            {
+                Global.reshademode = 0;
+                BtnReShadeMode1.IsChecked = true;
+                BtnReShadeMode2.IsChecked = false;
+            }
+            else if (toggleButton == BtnReShadeMode2)
+            {
+                Global.reshademode = 1;
+                BtnReShadeMode1.IsChecked = false;
+                BtnReShadeMode2.IsChecked = true;
+            }
         }
     }
 
@@ -539,42 +568,20 @@ public partial class Settings : Page
         installmodeMenuPopup.IsOpen = !installmodeMenuPopup.IsOpen;
     }
 
-    private void installmode_Click(object sender, RoutedEventArgs e)
+    private void addOnList_SelectedIndexChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (sender is ToggleButton toggleButton)
+        if (addons.SelectedItem is Addon selectedAddon)
         {
-            BtnNormal.IsChecked = false;
-            BtnTrouble.IsChecked = false;
-            BtnNexus.IsChecked = false;
-            toggleButton.IsChecked = true;
-
-            if (toggleButton == BtnNormal)
+            if (selectedAddon.Id == 10)
             {
-                Global.installpluginmode = 0;
-                descriptioninfo.Text = "正常模式: \r\n此模式已停止更新维护!建议使用Nexus模式!";
-                nowinstallmodedesc.Content = "当前: 正常模式";
-                Global.Addons[13].IsSelected = true;
-                Global.Addons[14].IsSelected = false;
+                BtnReShadeMode1.Visibility = Visibility.Visible;
+                BtnReShadeMode2.Visibility = Visibility.Visible;
             }
-            else if (toggleButton == BtnTrouble)
-            {
-                Global.installpluginmode = 1;
-                descriptioninfo.Text = "疑难模式: \r\n此模式已停止更新维护!建议使用Nexus模式!";
-                nowinstallmodedesc.Content = "当前: 疑难模式";
-                Global.Addons[13].IsSelected = true;
-                Global.Addons[14].IsSelected = false;
-            }
-            else if (toggleButton == BtnNexus)
-            {
-                Global.installpluginmode = 2;
-                descriptioninfo.Text = "Nexus模式: \r\n强烈推荐模式!支持热加载，热卸载，热更新!";
-                nowinstallmodedesc.Content = "当前: Nexus模式";
-                Global.Addons[13].IsSelected = false;
-                Global.Addons[14].IsSelected = true;
-            }
-            addons.Items.Refresh();
-            installmodeMenuPopup.IsOpen = false;
         }
+    }
+
+    private void addonschanged(object sender, RoutedEventArgs e)
+    {
     }
 
     private void installdpsmode_Click(object sender, RoutedEventArgs e)
@@ -590,31 +597,18 @@ public partial class Settings : Page
             Global.installdpsmode = 1;
             ArcdpslistComboBox.Visibility = Visibility.Hidden;
             tuijiandps.Visibility = Visibility.Visible;
-            labe1_1.Content = "推荐版本：" + Global.fileday;
         }
     }
 
-    private void ReShadeMode_Click(object sender, RoutedEventArgs e)
+    private void ArcdpslistComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (sender is ToggleButton toggleButton)
+        if (ArcdpslistComboBox.SelectedItem is Arcdps selectedArcdps)
         {
-            BtnReShadeMode1.IsChecked = false;
-            BtnReShadeMode2.IsChecked = false;
-            toggleButton.IsChecked = true;
-
-            if (toggleButton == BtnReShadeMode1)
-            {
-                Global.reshademode = 1;
-            }
-            else
-            {
-                Global.reshademode = 2;
-            }
+            Global.selectedarcdpsid = ArcdpslistComboBox.SelectedIndex;
+            Global.selectedarcdpsname = selectedArcdps.dps_name;
+            Global.selectedarcdpsurl = selectedArcdps.Urlpath;
+            Global.selectedarcdpsmd5 = selectedArcdps.Md5st;
+            Global.selectedarcdpssiz = selectedArcdps.Filesize;
         }
-    }
-
-    private void update_self_click(object sender, RoutedEventArgs e)
-    {
-        // Self update action
     }
 }

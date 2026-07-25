@@ -22,14 +22,13 @@
     <Label FontWeight="Bold" FontSize="30" Foreground="#FF696969" Margin="45,35,0,0" FontFamily="Microsoft YaHei UI" Width="225" Height="50" HorizontalAlignment="Left" VerticalAlignment="Top" Content="永恒泰蜜的克鲁" Grid.RowSpan="3" />
     <TextBlock Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.RowSpan="3" Margin="60,80,0,0" Height="25" Width="175" FontSize="16" Foreground="#FF696969" FontFamily="Microsoft YaHei UI Light" Text="激战2插件安装更新工具" />
 
-    <Label Name="label" Content="工具版本: v3.0.1B" HorizontalAlignment="Left" Foreground="#FF696969" Margin="50,5,0,0" Grid.Row="0" VerticalAlignment="Top" Width="220" />
+    <Label Name="label" Content="工具版本: v3.2.5" HorizontalAlignment="Left" Foreground="#FF696969" Margin="50,5,0,0" Grid.Row="0" VerticalAlignment="Top" Width="220" />
     <Label Name="label1" Content="New!" HorizontalAlignment="Left" Foreground="#FF696969" Margin="150,5,0,0" Grid.Row="0" VerticalAlignment="Top" Width="65" />
     <Label Name="label2" Content="" HorizontalAlignment="Left" Foreground="#FF696969" Margin="50,20,0,0" Grid.Row="0" VerticalAlignment="Top" Width="225" />
     <Button Name="update_self_button" Grid.Row="0" Margin="190,7,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" Height="20" Content="更新" Background="#00FFFFFF" Foreground="#FF696969" FontFamily="Microsoft YaHei UI Light" BorderBrush="#FF696969" BorderThickness="1" Click="update_self_click" />
     <ProgressBar Name="jindu" HorizontalAlignment="Left" Height="10" Margin="55,28,0,0" Grid.Row="0" VerticalAlignment="Top" Width="200" />
 
-    <Button Name="nextPage_Copy1" Grid.Row="3" Content="选择激战2游戏目录" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="560,-20,0,0" Width="200" Height="40" Foreground="#FF0AE417" Background="#7FABEFF9" FontFamily="Microsoft YaHei UI" FontSize="16" BorderThickness="1" Padding="2" BorderBrush="#FFC9C9C9" Style="{StaticResource BigContentButton}" FontWeight="Bold" Click="getpatch_button_clicked" />
-
+    <!-- Addon Selection List (Right Side) -->
     <Border Grid.Row="0" Grid.RowSpan="3" Width="200" HorizontalAlignment="Left" Margin="560,50,0,31" BorderThickness="1" BorderBrush="#FF696969" Background="#FFF5F5F5">
       <StackPanel Width="200" Height="313" HorizontalAlignment="Left">
         <Label FontSize="15" FontFamily="Microsoft YaHei UI" Margin="0,0,0,0" HorizontalAlignment="Center" Foreground="#FF696969" Content="选择插件" FontWeight="Bold" />
@@ -46,43 +45,7 @@
       </StackPanel>
     </Border>
 
-    <Border Name="label_description" Grid.Row="2" Margin="260,90,0,31" Height="212" BorderThickness="1" BorderBrush="#FF696969" Background="#FFF5F5F5" HorizontalAlignment="Left">
-      <StackPanel Width="287" HorizontalAlignment="Left">
-        <Label Name="descriptiontitle" Content="提示:" FontSize="16" FontWeight="Bold" HorizontalAlignment="Left" Foreground="#FF696969" VerticalAlignment="Top" Margin="5,0,0,0" />
-        <Label Name="nowinstallmodedesc" Content="" HorizontalAlignment="Right" Foreground="#FF696969" VerticalAlignment="Top" Margin="0,-28,22,0" />
-        <Grid Name="MenuPopupinstallmode" Margin="263,-28,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
-          <Button Name="installmodeMenuButton" Content="⇌" Width="22" Height="22" Background="#FFF5F5F5" Foreground="#FF696969" BorderBrush="#FFF5F5F5" BorderThickness="0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="installmodeMenuButton_Click" />
-          <Popup Name="installmodeMenuPopup" Placement="Left" HorizontalOffset="0" VerticalOffset="0" StaysOpen="False">
-            <Border BorderBrush="#FFC9C9C9" BorderThickness="1" Background="#FCFCFC" Padding="10">
-              <StackPanel>
-                <TextBlock Text="安装版本选择" HorizontalAlignment="Center" Foreground="#FF696969" Margin="0" />
-                <Border CornerRadius="20" Background="#ebecf0" Padding="0" Margin="0,8,0,0" Height="32" Width="90" VerticalAlignment="Top" HorizontalAlignment="Left">
-                  <Grid Margin="2,0">
-                    <ToggleButton Name="BtnNexus" Content="Nexus模式" Style="{StaticResource installClickButton}" Click="installmode_Click" />
-                  </Grid>
-                </Border>
-                <Border CornerRadius="20" Background="#ebecf0" Padding="0" Margin="0,5,0,0" Height="32" Width="90" VerticalAlignment="Top" HorizontalAlignment="Left">
-                  <Grid Margin="2,0">
-                    <ToggleButton Name="BtnNormal" Content="正常模式" Style="{StaticResource installClickButton}" Click="installmode_Click" />
-                  </Grid>
-                </Border>
-                <Border CornerRadius="20" Background="#ebecf0" Padding="0" Margin="0,5,0,0" Height="32" Width="90" VerticalAlignment="Top" HorizontalAlignment="Left">
-                  <Grid Margin="2,0">
-                    <ToggleButton Name="BtnTrouble" Content="疑难模式" Style="{StaticResource installClickButton}" Click="installmode_Click" />
-                  </Grid>
-                </Border>
-              </StackPanel>
-            </Border>
-          </Popup>
-        </Grid>
-        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxHeight="177">
-          <TextBlock Name="descriptioninfo" Text="正在获取信息..." HorizontalAlignment="Left" Foreground="#FF696969" VerticalAlignment="Top" Width="270" FontSize="13" TextWrapping="Wrap" Margin="10,0,0,0" />
-        </ScrollViewer>
-      </StackPanel>
-    </Border>
-
-    <Button Name="nextPage_Copy3" Grid.Row="3" Content="设置" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="705,-20,0,0" Width="55" Height="40" Foreground="#FF0AE417" Background="#7FABEFF9" FontFamily="Microsoft YaHei UI" FontSize="16" BorderThickness="1" Padding="2" BorderBrush="#FFC9C9C9" Style="{StaticResource BigContentButton}" FontWeight="Bold" Click="options_button_clicked" />
-
+    <!-- DPS Version Selection & Mode Selection Panel -->
     <Border Name="label_versions" Grid.Row="2" Width="165" HorizontalAlignment="Left" Margin="265,26,0,258" BorderThickness="1" BorderBrush="#FF696969" Background="#FFF5F5F5">
       <StackPanel Width="165" HorizontalAlignment="Left" VerticalAlignment="Top">
         <Label Name="labe1" Content="选择DPS版本" HorizontalAlignment="Center" Foreground="#FF696969" VerticalAlignment="Top" />
@@ -109,6 +72,37 @@
       </StackPanel>
     </Border>
 
+    <!-- Installation Mode Selection Button -->
+    <Grid Name="MenuPopupinstallmode" Grid.Row="2" Margin="265,90,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+      <StackPanel Orientation="Horizontal">
+        <Label Name="nowinstallmodedesc" Content="模式: Nexus模式" Foreground="#FF696969" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" />
+        <Button Name="installmodeMenuButton" Content="切换模式 ⇌" Width="90" Height="28" Background="#7FABEFF9" Foreground="#FF0AE417" BorderBrush="#FFC9C9C9" BorderThickness="1" FontFamily="Microsoft YaHei UI" FontWeight="Bold" FontSize="12" Click="installmodeMenuButton_Click" Margin="10,0,0,0" />
+      </StackPanel>
+      <Popup Name="installmodeMenuPopup" Placement="Bottom" HorizontalOffset="0" VerticalOffset="0" StaysOpen="False">
+        <Border BorderBrush="#FFC9C9C9" BorderThickness="1" Background="#FCFCFC" Padding="10">
+          <StackPanel>
+            <TextBlock Text="安装模式选择" HorizontalAlignment="Center" Foreground="#FF696969" Margin="0,0,0,5" FontWeight="Bold" />
+            <Border CornerRadius="20" Background="#ebecf0" Padding="0" Margin="0,4,0,0" Height="32" Width="100" VerticalAlignment="Top" HorizontalAlignment="Left">
+              <Grid Margin="2,0">
+                <ToggleButton Name="BtnNexus" Content="Nexus模式" Style="{StaticResource installClickButton}" Click="installmode_Click" />
+              </Grid>
+            </Border>
+            <Border CornerRadius="20" Background="#ebecf0" Padding="0" Margin="0,4,0,0" Height="32" Width="100" VerticalAlignment="Top" HorizontalAlignment="Left">
+              <Grid Margin="2,0">
+                <ToggleButton Name="BtnNormal" Content="正常模式" Style="{StaticResource installClickButton}" Click="installmode_Click" />
+              </Grid>
+            </Border>
+            <Border CornerRadius="20" Background="#ebecf0" Padding="0" Margin="0,4,0,0" Height="32" Width="100" VerticalAlignment="Top" HorizontalAlignment="Left">
+              <Grid Margin="2,0">
+                <ToggleButton Name="BtnTrouble" Content="疑难模式" Style="{StaticResource installClickButton}" Click="installmode_Click" />
+              </Grid>
+            </Border>
+          </StackPanel>
+        </Border>
+      </Popup>
+    </Grid>
+
+    <!-- ReShade Filter Mode Toggles -->
     <Border Grid.Row="2" CornerRadius="20" Background="#ebecf0" Padding="0" Margin="438,-5,0,0" Height="32" Width="110" VerticalAlignment="Top" HorizontalAlignment="Left">
       <Grid Margin="2,0">
         <ToggleButton Name="BtnReShadeMode1" Content="滤镜模式一" Style="{StaticResource installClickButton}" Click="ReShadeMode_Click" />
@@ -120,10 +114,46 @@
       </Grid>
     </Border>
 
+    <!-- Game Path Input -->
     <TextBlock Grid.Row="0" Grid.RowSpan="4" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="44,370,0,0" FontFamily="Microsoft YaHei UI Light" Foreground="#FF696969" FontSize="14" Text="游戏路径" />
     <TextBox Name="labebox1" Text="" Grid.Row="3" Margin="44,-3,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="505" Height="23" Background="#FFD3D3D3" BorderThickness="0" FontSize="16" FontFamily="Microsoft YaHei UI Light" />
 
-    <Button Name="nextPage" Grid.Row="3" Content="安装/更新插件" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="560,-20,0,0" Width="135" Height="40" Foreground="#FF0AE417" Background="#7FABEFF9" FontFamily="Microsoft YaHei UI" FontSize="16" BorderThickness="1" Padding="2" BorderBrush="#FFC9C9C9" Style="{StaticResource BigContentButton}" FontWeight="Bold" Click="update_button_clicked" />
-    <Button Name="nextPage_Copy2" Grid.Row="2" Content="安装教程及常见问题" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="265,-13,0,0" Width="165" Foreground="#FF0AE417" Background="#7FABEFF9" FontFamily="Microsoft YaHei UI" FontSize="16" BorderThickness="1" Padding="2" BorderBrush="#FFC9C9C9" Style="{StaticResource BigContentButton}" FontWeight="Bold" Click="getpatch_button_clicked2" />
+    <!-- Bottom Buttons -->
+    <Button Name="nextPage_Copy1" Grid.Row="3" Content="选择激战2游戏目录" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="560,-20,0,0" Width="200" Height="40" Foreground="#FF0AE417" Background="#7FABEFF9" FontFamily="Microsoft YaHei UI" FontSize="16" BorderThickness="1" Padding="2" BorderBrush="#FFC9C9C9" Style="{StaticResource BigContentButton}" FontWeight="Bold" Click="getpatch_button_clicked" />
+    <Button Name="nextPage" Grid.Row="3" Content="安装/更新插件" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="560,30,0,0" Width="135" Height="40" Foreground="#FF0AE417" Background="#7FABEFF9" FontFamily="Microsoft YaHei UI" FontSize="16" BorderThickness="1" Padding="2" BorderBrush="#FFC9C9C9" Style="{StaticResource BigContentButton}" FontWeight="Bold" Click="update_button_clicked" />
+    <Button Name="nextPage_Copy3" Grid.Row="3" Content="设置" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="705,30,0,0" Width="55" Height="40" Foreground="#FF0AE417" Background="#7FABEFF9" FontFamily="Microsoft YaHei UI" FontSize="16" BorderThickness="1" Padding="2" BorderBrush="#FFC9C9C9" Style="{StaticResource BigContentButton}" FontWeight="Bold" Click="options_button_clicked" />
+
+    <!-- Inline Options Popup Modal (No Page Navigation Required) -->
+    <Popup Name="optionsPopup" Placement="Center" StaysOpen="False" AllowsTransparency="True">
+      <Border CornerRadius="8" Background="#FAFAFA" BorderBrush="#FF696969" BorderThickness="2" Width="460" Height="240" Padding="15">
+        <Grid>
+          <TextBlock Text="高级设置与维护" FontSize="16" FontWeight="Bold" Foreground="#FF333333" FontFamily="Microsoft YaHei UI" HorizontalAlignment="Left" VerticalAlignment="Top" />
+          <Button Content="✕" Width="24" Height="24" HorizontalAlignment="Right" VerticalAlignment="Top" Background="Transparent" BorderThickness="0" Foreground="#FF666666" FontSize="14" FontWeight="Bold" Click="closeOptions_Click" />
+
+          <StackPanel Margin="0,35,0,0">
+            <!-- QQ Group -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+              <Label Content="官方QQ群:" FontSize="13" FontWeight="Bold" Foreground="#FF696969" />
+              <Label Name="qqGroupLabel" Content="未获取到" FontSize="13" Foreground="#FF0AE417" FontWeight="Bold" />
+            </StackPanel>
+
+            <!-- ARCDPS Font Size -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+              <Label Content="ARCDPS 字体大小:" FontSize="13" FontWeight="Bold" Foreground="#FF696969" />
+              <Slider Name="fontSizeSlider" Width="140" Minimum="13" Maximum="24" SmallChange="1" TickPlacement="BottomRight" IsSnapToTickEnabled="True" VerticalAlignment="Center" Margin="10,0,10,0" ValueChanged="fontSizeSlider_ValueChanged" />
+              <Label Name="fontSizeValueLabel" Content="{Binding Value, ElementName=fontSizeSlider}" FontSize="13" FontWeight="Bold" Foreground="#FF333333" Width="30" />
+            </StackPanel>
+
+            <!-- Maintenance Actions -->
+            <WrapPanel Margin="0,5,0,0">
+              <Button Content="恢复默认标题栏" Width="125" Height="36" Margin="0,0,10,10" Foreground="#FF0AE417" Background="#7FABEFF9" FontFamily="Microsoft YaHei UI" FontSize="13" FontWeight="Bold" BorderThickness="1" BorderBrush="#FFC9C9C9" Style="{StaticResource BigContentButton}" Click="RecoverDT_button_Click" />
+              <Button Content="卸载已安装插件" Width="125" Height="36" Margin="0,0,10,10" Foreground="#FFF50404" Background="#FFFFEBEB" FontFamily="Microsoft YaHei UI" FontSize="13" FontWeight="Bold" BorderThickness="1" BorderBrush="#FFFFC1C1" Style="{StaticResource BigContentButton}" Click="uninstall_clicked_Click" />
+              <Button Content="删除插件配置文件" Width="135" Height="36" Margin="0,0,10,10" Foreground="#FFF50404" Background="#FFFFEBEB" FontFamily="Microsoft YaHei UI" FontSize="13" FontWeight="Bold" BorderThickness="1" BorderBrush="#FFFFC1C1" Style="{StaticResource BigContentButton}" Click="uninstall_config_Click" />
+            </WrapPanel>
+          </StackPanel>
+        </Grid>
+      </Border>
+    </Popup>
+
   </Grid>
 </Page>
