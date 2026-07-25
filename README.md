@@ -56,8 +56,8 @@ GW2-addons-installtool/
 
 ```bash
 # 1. 克隆代码仓库
-git clone https://github.com/lotus8777/GW2-addons-installtool.git
-cd GW2-addons-installtool
+git clone https://github.com/lotus8777/GW2AddonsInstallTool.git
+cd GW2AddonsInstallTool
 
 # 2. 编译解决方案
 dotnet build GW2-addons-installtool.slnx -c Release
