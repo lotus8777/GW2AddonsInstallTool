@@ -1,0 +1,30 @@
+# Visual Studio / .NET Build Artifacts
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Tt]emp/
+*.user
+*.userosset
+*.sln.docstates
+.vs/
+.idea/
+.vscode/
+
+# Build outputs
+*.exe
+*.dll
+*.pdb
+*.config
+
+# Local runtime & cache files
+Installcache/
+latestRelease/
+install.ini
+log.txt
+*.xml
+0-请解压使用.txt
+
+# OS Generated
+Thumbs.db
+ehthumbs.db
+Desktop.ini

@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/GW2-addons-installtool/GW2-addons-installtool.csproj" />
+    <Project Path="src/Updater/Updater.csproj" />
+  </Folder>
+</Solution>

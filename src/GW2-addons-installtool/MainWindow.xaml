@@ -1,0 +1,11 @@
+<NavigationWindow x:Class="GW2_addons_installtool.MainWindow"
+                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  Title="激战2插件安装更新工具" Height="450" Width="800"
+                  Source="UI/Settings.xaml"
+                  ResizeMode="NoResize" WindowStyle="None"
+                  AllowsTransparency="True" WindowStartupLocation="CenterScreen">
+    <Control.Background>
+        <ImageBrush ImageSource="/resources/main-ui.png" Stretch="Fill" TileMode="None" />
+    </Control.Background>
+</NavigationWindow>
