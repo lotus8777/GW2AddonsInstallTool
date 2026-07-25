@@ -315,8 +315,23 @@ public partial class Settings : Page
     {
         if (e.ChangedButton == MouseButton.Left)
         {
+            if (e.OriginalSource is DependencyObject obj)
+            {
+                if (obj is Button || FindParent<Button>(obj) != null)
+                {
+                    return;
+                }
+            }
             Window.GetWindow(this)?.DragMove();
         }
+    }
+
+    private static T? FindParent<T>(DependencyObject child) where T : DependencyObject
+    {
+        DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+        if (parentObject == null) return null;
+        if (parentObject is T parent) return parent;
+        return FindParent<T>(parentObject);
     }
 
     private void close_clicked(object sender, RoutedEventArgs e)

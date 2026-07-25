@@ -14,8 +14,8 @@
     </Grid.RowDefinitions>
 
     <!-- Header Area -->
-    <Grid Grid.Row="0" PreviewMouseDown="TitleBar_MouseHeld">
-      <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+    <Grid Grid.Row="0">
+      <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Background="Transparent" PreviewMouseDown="TitleBar_MouseHeld">
         <TextBlock Text="激战2插件安装更新工具" FontSize="18" FontWeight="Bold" Foreground="#FF2D3748" FontFamily="Microsoft YaHei UI" VerticalAlignment="Center" />
         <TextBlock Text="永恒泰蜜的克鲁" FontSize="12" Foreground="#FF718096" FontFamily="Microsoft YaHei UI" VerticalAlignment="Center" Margin="10,2,0,0" />
         <Border CornerRadius="4" Background="#EBF8FF" BorderBrush="#BEE3F8" BorderThickness="1" Margin="12,0,0,0" Padding="6,2" VerticalAlignment="Center">
