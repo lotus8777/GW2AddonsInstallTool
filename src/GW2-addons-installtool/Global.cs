@@ -6,7 +6,7 @@ namespace GW2_addons_installtool;
 
 internal class Global
 {
-    public static string Toolversion = "3.2.5";
+    public static string Toolversion = "3.2.6";
     public static string Toolversion_get = string.Empty;
     public static string GamePath = string.Empty;
     public static List<Addon> Addons = new List<Addon>();

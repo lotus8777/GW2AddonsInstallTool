@@ -26,6 +26,15 @@ public partial class Settings : Page
         labebox1.Text = Global.GamePath;
         tuijiandps.Visibility = Visibility.Hidden;
 
+        string arcdpsIni = Path.Combine(Global.GamePath, @"addons\arcdps\arcdps.ini");
+        if (File.Exists(arcdpsIni))
+        {
+            if (int.TryParse(Iniflie.Read("font", "size", "13", arcdpsIni), out int size))
+            {
+                fontSizeSlider.Value = size;
+            }
+        }
+
         if (Global.reshademode == 0)
         {
             BtnReShadeMode1.IsChecked = true;
@@ -132,7 +141,6 @@ public partial class Settings : Page
                 {
                     labe1.Foreground = new SolidColorBrush(Colors.Red);
                     nextPage.Visibility = Visibility.Hidden;
-                    nextPage_Copy3.Visibility = Visibility.Hidden;
                     label1.Visibility = Visibility.Hidden;
                     label2.Visibility = Visibility.Hidden;
                     update_self_button.Visibility = Visibility.Hidden;
@@ -339,31 +347,20 @@ public partial class Settings : Page
             {
                 Global.GamePath = selectedPath;
                 labebox1.Text = Global.GamePath;
+                string arcdpsIni = Path.Combine(Global.GamePath, @"addons\arcdps\arcdps.ini");
+                if (File.Exists(arcdpsIni))
+                {
+                    if (int.TryParse(Iniflie.Read("font", "size", "13", arcdpsIni), out int size))
+                    {
+                        fontSizeSlider.Value = size;
+                    }
+                }
             }
             else
             {
                 MessageBox.Show($"所选目录路径含有中文字符或未找到 Gw2-64.exe\r\n正确路径样式:C:\\Program Files\\Guild Wars 2\r\n您选择的路径:{selectedPath}\r\n", "目录识别错误!");
             }
         }
-    }
-
-    private void options_button_clicked(object sender, RoutedEventArgs e)
-    {
-        qqGroupLabel.Content = string.IsNullOrEmpty(Global.qqgroup) ? "未获取到" : Global.qqgroup;
-        string arcdpsIni = Path.Combine(Global.GamePath, @"addons\arcdps\arcdps.ini");
-        if (File.Exists(arcdpsIni))
-        {
-            if (int.TryParse(Iniflie.Read("font", "size", "13", arcdpsIni), out int size))
-            {
-                fontSizeSlider.Value = size;
-            }
-        }
-        optionsPopup.IsOpen = true;
-    }
-
-    private void closeOptions_Click(object sender, RoutedEventArgs e)
-    {
-        optionsPopup.IsOpen = false;
     }
 
     private void fontSizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
