@@ -62,13 +62,24 @@ public partial class Install : Page
             }
         }
         jindu.Maximum = 100.0;
-        Task.Run(() => download());
+        Task.Run(async () => await StartInstallProcessAsync());
     }
 
-    public static bool UnpackFiles(string dir, string file)
+    private void AppendLog(string text)
+    {
+        Logger.Log(text.TrimEnd());
+        Dispatcher.Invoke(() =>
+        {
+            textBox.Text += text;
+            textBox.ScrollToEnd();
+        });
+    }
+
+    public bool UnpackFiles(string dir, string file)
     {
         if (!File.Exists(file))
         {
+            AppendLog($"[错误] 压缩文件不存在: {file}\r\n");
             MessageBox.Show(file + "不存在\r\n您需要尝试重新点击安装", "解压失败");
             return false;
         }
@@ -108,30 +119,36 @@ public partial class Install : Page
                     entry.ExtractToFile(destFile, overwrite: true);
                 }
             }
+            AppendLog($"解压成功: {Path.GetFileName(file)} -> {dir}\r\n");
             return true;
         }
         catch (Exception ex)
         {
+            Logger.LogError($"解压失败: {file}", ex);
             MessageBox.Show(file + "解压失败:\r\n" + ex.Message + "\r\n您需要尝试重新点击安装", "解压失败");
             return false;
         }
     }
 
-    private void download()
+    private async Task StartInstallProcessAsync()
     {
+        AppendLog($"===== 开始安装流程 [模式: {Global.installpluginmode}] =====\r\n");
         string cacheDir = Path.Combine(Global.GamePath, "Installcache");
         if (!Directory.Exists(cacheDir))
         {
-            Dispatcher.Invoke(() =>
-            {
-                textBox.Text += "在游戏目录下创建存放目录Installcache\r\n";
-            });
+            AppendLog("在游戏目录下创建存放目录Installcache\r\n");
             Directory.CreateDirectory(cacheDir);
         }
 
         foreach (Addon item in Global.Addons)
         {
             if (!item.IsSelected) continue;
+
+            if (string.IsNullOrEmpty(item.Filename))
+            {
+                AppendLog($"[警告] 插件 {item.Addon_name} 暂未获取到服务器文件名，跳过该项\r\n");
+                continue;
+            }
 
             try
             {
@@ -147,51 +164,49 @@ public partial class Install : Page
                     if (!fileMd5.Equals(item.Md5st, StringComparison.OrdinalIgnoreCase))
                     {
                         needDownload = true;
-                        Dispatcher.Invoke(() =>
-                        {
-                            textBox.Text += item.Filename + "文件MD5不一致 需下载\r\n";
-                            textBox.ScrollToEnd();
-                        });
+                        AppendLog($"{item.Filename} 文件MD5不一致 (本地:{fileMd5} vs 服务器:{item.Md5st}) 需重新下载\r\n");
                     }
                     else
                     {
-                        Dispatcher.Invoke(() =>
-                        {
-                            textBox.Text += item.Filename + "文件MD5一致 无需下载\r\n";
-                            textBox.ScrollToEnd();
-                        });
+                        AppendLog($"{item.Filename} 文件MD5一致 无需下载\r\n");
                     }
                 }
                 else
                 {
                     needDownload = true;
-                    Dispatcher.Invoke(() =>
-                    {
-                        textBox.Text += item.Filename + "文件不存在 需下载\r\n";
-                        textBox.ScrollToEnd();
-                    });
+                    AppendLog($"{item.Filename} 文件不存在 需下载\r\n");
                 }
 
-                if (needDownload && !string.IsNullOrEmpty(item.Urlpath))
+                if (needDownload)
                 {
+                    if (string.IsNullOrEmpty(item.Urlpath))
+                    {
+                        AppendLog($"[错误] 无法获取 {item.Addon_name} ({item.Filename}) 的下载链接，请检查网络设置\r\n");
+                        continue;
+                    }
+
                     Dispatcher.Invoke(() =>
                     {
-                        label.Content = item.Filename + "下载中...";
+                        label.Content = item.Filename + " 下载中...";
+                        jindu.Value = 0;
+                        jindu.Maximum = Math.Max(1, item.Filesize);
                     });
-                    Downlodmeg downloader = new Downlodmeg(item.Urlpath, item.Filename, 1);
-                    Task.Delay(100).Wait();
 
-                    while (!downloader.taskA.IsCompleted)
+                    bool ok = await Downlodmeg.DownloadFileAsync(item.Urlpath, filePath, (read, total) =>
                     {
                         Dispatcher.Invoke(() =>
                         {
-                            jindu.Maximum = Math.Max(1, item.Filesize);
-                            jindu.Value = downloader.Progresss;
-                            label.Content = item.Filename + "下载中..." + ((double)jindu.Value / jindu.Maximum * 100.0).ToString("0.00") + "%";
+                            jindu.Maximum = total > 0 ? total : Math.Max(1, item.Filesize);
+                            jindu.Value = read;
+                            double pct = jindu.Maximum > 0 ? (jindu.Value / jindu.Maximum * 100.0) : 0;
+                            label.Content = $"{item.Filename} 下载中... {pct:0.00}%";
                         });
-                        Task.Delay(50).Wait();
+                    });
+
+                    if (!ok)
+                    {
+                        AppendLog($"[错误] {item.Filename} 下载失败\r\n");
                     }
-                    Task.Delay(500).Wait();
                 }
 
                 if (File.Exists(filePath))
@@ -199,23 +214,18 @@ public partial class Install : Page
                     FileInfo fileInfo = new FileInfo(filePath);
                     if (item.Filesize > 0 && fileInfo.Length < item.Filesize)
                     {
+                        AppendLog($"[错误] {item.Addon_name} 压缩文件大小不一致 (本地:{fileInfo.Length} vs 服务器:{item.Filesize})\r\n");
                         MessageBox.Show($"{item.Addon_name} 压缩文件:{item.Filename}大小不一致,\r\n服务器文件大小:{item.Filesize}\r\n本地文件大小{fileInfo.Length}\r\n您需要点击返回重新开始安装!", "下载的文件大小不一致!");
-                        Dispatcher.Invoke(() =>
-                        {
-                            back.IsEnabled = true;
-                        });
+                        Dispatcher.Invoke(() => back.IsEnabled = true);
                         return;
                     }
-                    Dispatcher.Invoke(() =>
-                    {
-                        textBox.Text += item.Filename + "文件大小一致\r\n";
-                        textBox.ScrollToEnd();
-                    });
+                    AppendLog($"{item.Filename} 文件校验完成\r\n");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                Logger.LogError($"处理插件 {item.Addon_name} 出错", ex);
+                AppendLog($"[异常] {ex.Message}\r\n");
             }
         }
 
@@ -224,31 +234,15 @@ public partial class Install : Page
         if (File.Exists(arcdpsLangFile))
         {
             dpsTitle = Iniflie.Read("lang", "703", "", arcdpsLangFile);
-            Dispatcher.Invoke(() =>
-            {
-                textBox.Text += "已读取arcdps_lang.ini文件中的DPS标题栏\r\n";
-                textBox.ScrollToEnd();
-            });
+            AppendLog("已读取arcdps_lang.ini文件中的DPS标题栏\r\n");
         }
 
         Dispatcher.Invoke(() =>
         {
-            textBox.Text += "开始清理文件\r\n";
             label.Content = "清理文件...";
-            textBox.ScrollToEnd();
-
-            if (Global.installpluginmode == 0)
-            {
-                jindu.Maximum = (项目数 + 1.0) * 10.0;
-            }
-            else if (Global.installpluginmode == 1)
-            {
-                jindu.Maximum = (项目数 - 1.0) * 10.0;
-            }
-            else if (Global.installpluginmode == 2)
-            {
-                jindu.Maximum = 项目数 * 10.0;
-            }
+            if (Global.installpluginmode == 0) jindu.Maximum = (项目数 + 1.0) * 10.0;
+            else if (Global.installpluginmode == 1) jindu.Maximum = (项目数 - 1.0) * 10.0;
+            else if (Global.installpluginmode == 2) jindu.Maximum = 项目数 * 10.0;
             jindu.Value = 0.0;
         });
 
@@ -272,49 +266,22 @@ public partial class Install : Page
             foreach (string fileItem in cleanFiles)
             {
                 string p1 = Path.Combine(gameRoot, fileItem);
-                if (File.Exists(p1))
-                {
-                    File.Delete(p1);
-                    Dispatcher.Invoke(() => { textBox.Text += "删除" + p1 + "\r\n"; textBox.ScrollToEnd(); });
-                }
+                if (File.Exists(p1)) { File.Delete(p1); AppendLog($"删除 {p1}\r\n"); }
                 string p2 = Path.Combine(bin64, fileItem);
-                if (File.Exists(p2))
-                {
-                    File.Delete(p2);
-                    Dispatcher.Invoke(() => { textBox.Text += "删除" + p2 + "\r\n"; textBox.ScrollToEnd(); });
-                }
+                if (File.Exists(p2)) { File.Delete(p2); AppendLog($"删除 {p2}\r\n"); }
                 string p3 = Path.Combine(bin64, "cef", fileItem);
-                if (File.Exists(p3))
-                {
-                    File.Delete(p3);
-                    Dispatcher.Invoke(() => { textBox.Text += "删除" + p3 + "\r\n"; textBox.ScrollToEnd(); });
-                }
+                if (File.Exists(p3)) { File.Delete(p3); AppendLog($"删除 {p3}\r\n"); }
                 string p4 = Path.Combine(arcdpsDir, fileItem);
-                if (File.Exists(p4))
-                {
-                    File.Delete(p4);
-                    Dispatcher.Invoke(() => { textBox.Text += "删除" + p4 + "\r\n"; textBox.ScrollToEnd(); });
-                }
+                if (File.Exists(p4)) { File.Delete(p4); AppendLog($"删除 {p4}\r\n"); }
                 string p5 = Path.Combine(addonsDir, fileItem);
-                if (File.Exists(p5))
-                {
-                    File.Delete(p5);
-                    Dispatcher.Invoke(() => { textBox.Text += "删除" + p5 + "\r\n"; textBox.ScrollToEnd(); });
-                }
+                if (File.Exists(p5)) { File.Delete(p5); AppendLog($"删除 {p5}\r\n"); }
             }
         }
         catch (Exception ex)
         {
+            Logger.LogError("清理文件出错", ex);
             MessageBox.Show(ex.Message + "\r\n\r\n清理文件失败,请尝试重启电脑后再安装插件!!!", "提醒!");
         }
-
-        Dispatcher.Invoke(() =>
-        {
-            textBox.Text += "清理完成\r\n";
-            label.Content = "开始解压并安装文件...";
-            textBox.ScrollToEnd();
-            jindu.Value = 10.0;
-        });
 
         if (!Directory.Exists(arcdpsDir)) Directory.CreateDirectory(arcdpsDir);
         if (!Directory.Exists(bin64)) Directory.CreateDirectory(bin64);
@@ -345,12 +312,12 @@ public partial class Install : Page
                     File.Copy(Path.Combine(peiziDir, "arcdps_font.ttf"), Path.Combine(addonsDir, @"Nexus\Fonts\arcdps_font.ttf"), overwrite: true);
                 }
 
-                if (Global.Addons[0].IsSelected)
+                if (Global.Addons.Count > 0 && Global.Addons[0].IsSelected)
                 {
                     string arcZip = Path.Combine(cacheDir, Global.Addons[0].Filename);
                     if (UnpackFiles(addonsDir + "\\", arcZip))
                     {
-                        Dispatcher.Invoke(() => { textBox.Text += Global.Addons[0].Filename + "文件解压完成\r\n"; textBox.ScrollToEnd(); });
+                        AppendLog($"{Global.Addons[0].Filename} 文件解压完成\r\n");
                     }
                     if (File.Exists(Path.Combine(addonsDir, "d3d9.dll")))
                     {
@@ -360,7 +327,7 @@ public partial class Install : Page
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                Logger.LogError("Nexus 模式安装出错", ex);
             }
         }
 
@@ -371,13 +338,13 @@ public partial class Install : Page
 
         Dispatcher.Invoke(() =>
         {
-            textBox.Text += "删除临时目录\r\n安装完成\r\n";
+            AppendLog("安装完成\r\n");
             label.Content = "安装完成";
-            textBox.ScrollToEnd();
             jindu.Value = jindu.Maximum;
             back.IsEnabled = true;
         });
 
+        Logger.Log("安装流程全部完成。");
         MessageBox.Show("安装完成\r\n请正常启动游戏查看是否生效", "安装完成!");
     }
 }

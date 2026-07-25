@@ -2,87 +2,63 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Windows;
 
 namespace GW2_addons_installtool.Services;
 
 public class Downlodmeg
 {
-    private static readonly HttpClient SharedHttpClient = new HttpClient();
+    private static readonly HttpClient SharedHttpClient = CreateHttpClient();
 
-    private readonly string downloadUrl;
-    private readonly string update_path;
-    private readonly int update_mode;
-
-    public int Progresss;
-    public bool downloadok;
-    public Task taskA;
-
-    public Downlodmeg(string dUrl, string dpath, int dmode)
+    private static HttpClient CreateHttpClient()
     {
-        downloadUrl = dUrl;
-        update_path = dpath;
-        update_mode = dmode;
-        try
+        HttpClientHandler handler = new HttpClientHandler
         {
-            taskA = Task.Run(() => DownloadLatestRelease_http());
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show(ex.Message, update_path + " 下载过程错误1");
-            taskA = Task.CompletedTask;
-        }
+            AllowAutoRedirect = true
+        };
+        HttpClient client = new HttpClient(handler);
+        client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
+        client.Timeout = TimeSpan.FromMinutes(10);
+        return client;
     }
 
-    private async Task DownloadLatestRelease_http()
+    public static async Task<bool> DownloadFileAsync(string url, string destPath, Action<long, long> progressCallback)
     {
-        string pathhh;
-        if (update_mode == 2)
-        {
-            pathhh = "latestRelease";
-            if (Directory.Exists(pathhh))
-            {
-                Directory.Delete(pathhh, recursive: true);
-            }
-            Directory.CreateDirectory(pathhh);
-        }
-        else
-        {
-            pathhh = Path.Combine(Global.GamePath, "Installcache");
-            if (!Directory.Exists(pathhh))
-            {
-                Directory.CreateDirectory(pathhh);
-            }
-        }
-
         try
         {
-            downloadok = false;
-            using HttpResponseMessage response = await SharedHttpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead);
+            Logger.Log($"开始下载文件: {Path.GetFileName(destPath)} | URL: {url}");
+
+            string? dir = Path.GetDirectoryName(destPath);
+            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+
+            using HttpResponseMessage response = await SharedHttpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
 
-            string fullDestPath = Path.Combine(pathhh, update_path);
-            using FileStream downloadFile = File.Create(fullDestPath);
-            using Stream download = await response.Content.ReadAsStreamAsync();
+            long totalBytes = response.Content.Headers.ContentLength ?? -1L;
+
+            using FileStream fileStream = new FileStream(destPath, FileMode.Create, FileAccess.Write, FileShare.None, 81920, useAsync: true);
+            using Stream contentStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
 
             byte[] buffer = new byte[81920];
-            long totalBytesRead = 0L;
-            while (true)
+            long totalRead = 0L;
+            int bytesRead;
+
+            while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) > 0)
             {
-                int bytesRead = await download.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
-                if (bytesRead == 0)
-                {
-                    break;
-                }
-                await downloadFile.WriteAsync(buffer, 0, bytesRead).ConfigureAwait(false);
-                totalBytesRead += bytesRead;
-                Progresss = (int)totalBytesRead;
+                await fileStream.WriteAsync(buffer, 0, bytesRead).ConfigureAwait(false);
+                totalRead += bytesRead;
+                progressCallback?.Invoke(totalRead, totalBytes);
             }
-            downloadok = true;
+
+            Logger.Log($"文件下载成功: {Path.GetFileName(destPath)} (共 {totalRead} 字节)");
+            return true;
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.Message, update_path + " 下载过程错误2");
+            Logger.LogError($"下载失败 [{Path.GetFileName(destPath)}] ({url})", ex);
+            return false;
         }
     }
 }
