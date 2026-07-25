@@ -1,35 +1,30 @@
-using System.Globalization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using System.Text.Json;
 
 namespace GW2_addons_installtool.Services;
 
 internal static class Converter
 {
-    public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+    public static readonly JsonSerializerOptions Settings = new JsonSerializerOptions
     {
-        MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
-        DateParseHandling = DateParseHandling.None,
-        Converters = { new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal } }
+        PropertyNameCaseInsensitive = true,
+        AllowTrailingCommas = true
     };
 }
 
 internal static class ConverterBodyapi
 {
-    public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+    public static readonly JsonSerializerOptions Settings = new JsonSerializerOptions
     {
-        MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
-        DateParseHandling = DateParseHandling.None,
-        Converters = { new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal } }
+        PropertyNameCaseInsensitive = true,
+        AllowTrailingCommas = true
     };
 }
 
 internal static class ConverterListbodyapi
 {
-    public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+    public static readonly JsonSerializerOptions Settings = new JsonSerializerOptions
     {
-        MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
-        DateParseHandling = DateParseHandling.None,
-        Converters = { new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal } }
+        PropertyNameCaseInsensitive = true,
+        AllowTrailingCommas = true
     };
 }

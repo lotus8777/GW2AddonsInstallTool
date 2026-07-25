@@ -1,31 +1,33 @@
 using System;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using GW2_addons_installtool.Services;
 
 namespace GW2_addons_installtool.Models;
 
 public class Bodyapi
 {
-    [JsonProperty("fileday")]
+    [JsonPropertyName("fileday")]
     public string Fileday { get; set; } = string.Empty;
 
-    [JsonProperty("qqgroup")]
+    [JsonPropertyName("qqgroup")]
     public string QQgroup { get; set; } = string.Empty;
 
-    [JsonProperty("helpinfo")]
+    [JsonPropertyName("helpinfo")]
     public string helpinfo { get; set; } = string.Empty;
 
-    [JsonProperty("installtoolsize")]
+    [JsonPropertyName("installtoolsize")]
     public long installtoolsize { get; set; }
 
-    [JsonProperty("vers")]
+    [JsonPropertyName("vers")]
     public string Vers { get; set; } = string.Empty;
 
-    [JsonProperty("files")]
+    [JsonPropertyName("files")]
     public boFile[] Files { get; set; } = Array.Empty<boFile>();
 
     public static Bodyapi FromJson(string json)
     {
-        return JsonConvert.DeserializeObject<Bodyapi>(json, ConverterBodyapi.Settings) ?? new Bodyapi();
+        if (string.IsNullOrWhiteSpace(json)) return new Bodyapi();
+        return JsonSerializer.Deserialize<Bodyapi>(json, ConverterBodyapi.Settings) ?? new Bodyapi();
     }
 }

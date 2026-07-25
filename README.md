@@ -27,7 +27,7 @@
 - **框架**：.NET 10.0 (WPF)
 - **语言**：C# 13
 - **依赖库**：
-  - `Newtonsoft.Json` (API 数据解析)
+  - `System.Text.Json` (内置 JSON 反序列化与 API 解析)
   - `System.IO.Compression` (原生 Zip 压缩解压)
 
 ---

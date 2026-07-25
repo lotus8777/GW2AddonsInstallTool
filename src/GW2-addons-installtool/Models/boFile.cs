@@ -1,21 +1,21 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace GW2_addons_installtool.Models;
 
 public class boFile
 {
-    [JsonProperty("id")]
+    [JsonPropertyName("id")]
     public long Id { get; set; }
 
-    [JsonProperty("name")]
+    [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
 
-    [JsonProperty("md5")]
+    [JsonPropertyName("md5")]
     public string Md5 { get; set; } = string.Empty;
 
-    [JsonProperty("size")]
+    [JsonPropertyName("size")]
     public long Size { get; set; }
 
-    [JsonProperty("description")]
+    [JsonPropertyName("description")]
     public string Description { get; set; } = string.Empty;
 }
