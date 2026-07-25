@@ -19,7 +19,7 @@
         <TextBlock Text="激战2插件安装更新工具" FontSize="18" FontWeight="Bold" Foreground="#FF2D3748" FontFamily="Microsoft YaHei UI" VerticalAlignment="Center" />
         <TextBlock Text="永恒泰蜜的克鲁" FontSize="12" Foreground="#FF718096" FontFamily="Microsoft YaHei UI" VerticalAlignment="Center" Margin="10,2,0,0" />
         <Border CornerRadius="4" Background="#EBF8FF" BorderBrush="#BEE3F8" BorderThickness="1" Margin="12,0,0,0" Padding="6,2" VerticalAlignment="Center">
-          <TextBlock Name="label" Text="v3.2.9" FontSize="11" Foreground="#FF2B6CB0" FontWeight="Bold" />
+          <TextBlock Name="label" Text="v3.3.0" FontSize="11" Foreground="#FF2B6CB0" FontWeight="Bold" />
         </Border>
         <StackPanel Name="updatePanel" Orientation="Horizontal" Visibility="Collapsed" Margin="10,0,0,0" VerticalAlignment="Center">
           <Border CornerRadius="4" Background="#FFF5F5" Padding="6,2" VerticalAlignment="Center">
@@ -44,10 +44,18 @@
         <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
 
-      <!-- Left Column: Settings Cards -->
-      <StackPanel Grid.Column="0">
+      <!-- Left Column: Settings Cards (Grid to stretch bottom card to match right column height) -->
+      <Grid Grid.Column="0">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="10" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="10" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
         <!-- Card 1: 安装模式与滤镜配置 -->
-        <Border CornerRadius="8" Background="#FAFAFA" BorderBrush="#E2E8F0" BorderThickness="1" Padding="14" Margin="0,0,0,10">
+        <Border Grid.Row="0" CornerRadius="8" Background="#FAFAFA" BorderBrush="#E2E8F0" BorderThickness="1" Padding="14">
           <StackPanel>
             <TextBlock Text="⚙️ 安装模式与滤镜配置" FontSize="13" FontWeight="Bold" Foreground="#FF2D3748" Margin="0,0,0,10" />
             <Grid Margin="0,0,0,10">
@@ -102,9 +110,9 @@
         </Border>
 
         <!-- Card 2: 维护与工具 -->
-        <Border CornerRadius="8" Background="#FAFAFA" BorderBrush="#E2E8F0" BorderThickness="1" Padding="14" Margin="0,0,0,10">
+        <Border Grid.Row="2" CornerRadius="8" Background="#FAFAFA" BorderBrush="#E2E8F0" BorderThickness="1" Padding="14">
           <StackPanel>
-            <TextBlock Text="🛠️ 维护与工具" FontSize="13" FontWeight="Bold" Foreground="#FF2D3748" Margin="0,0,0,10" />
+            <TextBlock Text="🛠️ 维护与工具" FontSize="13" FontWeight="Bold" Foreground="#FF2D3748" Margin="0,0,10,10" />
             <UniformGrid Columns="3">
               <Button Content="恢复默认标题栏" Height="30" Margin="0,0,6,0" Background="#EDF2F7" Foreground="#FF2D3748" BorderBrush="#CBD5E0" BorderThickness="1" FontWeight="Bold" FontSize="12" Click="RecoverDT_button_Click" />
               <Button Content="卸载已安装插件" Height="30" Margin="0,0,6,0" Background="#FFF5F5" Foreground="#FFE53E3E" BorderBrush="#FEB2B2" BorderThickness="1" FontWeight="Bold" FontSize="12" Click="uninstall_clicked_Click" />
@@ -113,24 +121,29 @@
           </StackPanel>
         </Border>
 
-        <!-- Card 3: 激战2游戏根目录 -->
-        <Border CornerRadius="8" Background="#FAFAFA" BorderBrush="#E2E8F0" BorderThickness="1" Padding="14">
-          <StackPanel>
-            <TextBlock Text="📁 激战2游戏根目录" FontSize="13" FontWeight="Bold" Foreground="#FF2D3748" Margin="0,0,0,8" />
-            <Grid>
+        <!-- Card 3: 激战2游戏根目录 (VerticalAlignment="Stretch" to perfectly match right column bottom) -->
+        <Border Grid.Row="4" CornerRadius="8" Background="#FAFAFA" BorderBrush="#E2E8F0" BorderThickness="1" Padding="14" VerticalAlignment="Stretch">
+          <Grid VerticalAlignment="Center">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="8" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="📁 激战2游戏根目录" FontSize="13" FontWeight="Bold" Foreground="#FF2D3748" />
+            <Grid Grid.Row="2">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="110" />
               </Grid.ColumnDefinitions>
-              <TextBox Name="labebox1" Grid.Column="0" Height="30" VerticalContentAlignment="Center" Padding="6,0" FontSize="12" FontFamily="Consolas, Microsoft YaHei UI" Background="White" BorderBrush="#CBD5E0" BorderThickness="1" IsReadOnly="True" />
-              <Button Name="nextPage_Copy1" Grid.Column="1" Content="选择游戏目录" Height="30" Margin="8,0,0,0" Background="#3182CE" Foreground="White" BorderThickness="0" FontWeight="Bold" FontSize="12" Click="getpatch_button_clicked" />
+              <TextBox Name="labebox1" Grid.Column="0" Height="32" VerticalContentAlignment="Center" Padding="6,0" FontSize="12" FontFamily="Consolas, Microsoft YaHei UI" Background="White" BorderBrush="#CBD5E0" BorderThickness="1" IsReadOnly="True" />
+              <Button Name="nextPage_Copy1" Grid.Column="1" Content="选择游戏目录" Height="32" Margin="8,0,0,0" Background="#3182CE" Foreground="White" BorderThickness="0" FontWeight="Bold" FontSize="12" Click="getpatch_button_clicked" />
             </Grid>
-          </StackPanel>
+          </Grid>
         </Border>
-      </StackPanel>
+      </Grid>
 
-      <!-- Right Column: Addon Checklist & Big Install Button -->
-      <Border Grid.Column="2" CornerRadius="8" Background="#FAFAFA" BorderBrush="#E2E8F0" BorderThickness="1" Padding="12">
+      <!-- Right Column: Addon Checklist & Big Install Button (VerticalAlignment="Stretch") -->
+      <Border Grid.Column="2" CornerRadius="8" Background="#FAFAFA" BorderBrush="#E2E8F0" BorderThickness="1" Padding="12" VerticalAlignment="Stretch">
         <Grid>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
