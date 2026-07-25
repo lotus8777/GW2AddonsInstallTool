@@ -19,7 +19,7 @@
         <TextBlock Text="激战2插件安装更新工具" FontSize="18" FontWeight="Bold" Foreground="#FF2D3748" FontFamily="Microsoft YaHei UI" VerticalAlignment="Center" />
         <TextBlock Text="永恒泰蜜的克鲁" FontSize="12" Foreground="#FF718096" FontFamily="Microsoft YaHei UI" VerticalAlignment="Center" Margin="10,2,0,0" />
         <Border CornerRadius="4" Background="#EBF8FF" BorderBrush="#BEE3F8" BorderThickness="1" Margin="12,0,0,0" Padding="6,2" VerticalAlignment="Center">
-          <TextBlock Name="label" Text="v3.2.7" FontSize="11" Foreground="#FF2B6CB0" FontWeight="Bold" />
+          <TextBlock Name="label" Text="v3.2.8" FontSize="11" Foreground="#FF2B6CB0" FontWeight="Bold" />
         </Border>
         <StackPanel Name="updatePanel" Orientation="Horizontal" Visibility="Collapsed" Margin="10,0,0,0" VerticalAlignment="Center">
           <Border CornerRadius="4" Background="#FFF5F5" Padding="6,2" VerticalAlignment="Center">
@@ -88,11 +88,7 @@
               <!-- DPS Version -->
               <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="DPS版本:" FontSize="13" Foreground="#FF4A5568" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,6,0" />
-                <Button Name="installdpsmodeMenuButton" Content="⇌" Width="22" Height="22" Margin="0,0,6,0" Click="installdpsmode_Click" />
-                <ComboBox Name="ArcdpslistComboBox" DisplayMemberPath="DisplayText" Width="140" FontSize="12" SelectionChanged="ArcdpslistComboBox_SelectionChanged" />
-                <Border Name="tuijiandps" Background="#EDF2F7" CornerRadius="4" Padding="6,2">
-                  <TextBlock Name="labe1_1" Text="推荐版本" FontSize="11" Foreground="#FF2D3748" />
-                </Border>
+                <ComboBox Name="ArcdpslistComboBox" DisplayMemberPath="DisplayText" Width="170" FontSize="12" SelectionChanged="ArcdpslistComboBox_SelectionChanged" />
               </StackPanel>
 
               <!-- Font Size -->

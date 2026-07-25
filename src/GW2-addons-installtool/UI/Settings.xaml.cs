@@ -68,18 +68,6 @@ public partial class Settings : Page
             nowinstallmodedesc.Text = "Nexus模式";
         }
 
-        if (Global.installdpsmode == 2)
-        {
-            ArcdpslistComboBox.Visibility = Visibility.Visible;
-            tuijiandps.Visibility = Visibility.Collapsed;
-        }
-        else
-        {
-            Global.installdpsmode = 1;
-            ArcdpslistComboBox.Visibility = Visibility.Collapsed;
-            tuijiandps.Visibility = Visibility.Visible;
-        }
-
         Task.Run(() => getwebinfomx());
         Task.Run(async () => await CheckGitHubReleaseVersionAsync());
     }
@@ -128,21 +116,6 @@ public partial class Settings : Page
 
             if (task.IsCompleted)
             {
-                Dispatcher.Invoke(() =>
-                {
-                    labe1_1.Text = "推荐版本: " + (string.IsNullOrEmpty(Global.fileday) ? "自动同步" : Global.fileday);
-                    if (Global.installdpsmode == 2)
-                    {
-                        ArcdpslistComboBox.Visibility = Visibility.Visible;
-                        tuijiandps.Visibility = Visibility.Collapsed;
-                    }
-                    else
-                    {
-                        ArcdpslistComboBox.Visibility = Visibility.Collapsed;
-                        tuijiandps.Visibility = Visibility.Visible;
-                    }
-                });
-
                 if (Global.lastarcdpssiz == 1)
                 {
                     MessageBox.Show(Global.lastarcdpsmd5, "服务器消息 - 通告");
@@ -497,17 +470,18 @@ public partial class Settings : Page
             Global.Addons[14].IsSelected = true;
         }
 
-        if (Global.installdpsmode == 1)
+        if (ArcdpslistComboBox.SelectedItem is Arcdps selectedArcdps)
         {
-            Global.Addons[0].Md5st = Global.tuijianarcdpsmd5;
-            Global.Addons[0].Urlpath = Global.tuijianarcdpsurl;
-            Global.Addons[0].Filesize = Global.tuijianarcdpssiz;
+            Global.Addons[0].Md5st = selectedArcdps.Md5st;
+            Global.Addons[0].Urlpath = selectedArcdps.Urlpath;
+            Global.Addons[0].Filesize = selectedArcdps.Filesize;
         }
-        else if (Global.installdpsmode == 2)
+        else if (Global.Arcdpslists.Count > 0)
         {
-            Global.Addons[0].Md5st = Global.selectedarcdpsmd5;
-            Global.Addons[0].Urlpath = Global.selectedarcdpsurl;
-            Global.Addons[0].Filesize = Global.selectedarcdpssiz;
+            Arcdps defaultDps = Global.Arcdpslists[0];
+            Global.Addons[0].Md5st = defaultDps.Md5st;
+            Global.Addons[0].Urlpath = defaultDps.Urlpath;
+            Global.Addons[0].Filesize = defaultDps.Filesize;
         }
 
         NavigationService?.Navigate(new Uri("UI/Install.xaml", UriKind.Relative));
@@ -595,22 +569,6 @@ public partial class Settings : Page
 
     private void addonschanged(object sender, RoutedEventArgs e)
     {
-    }
-
-    private void installdpsmode_Click(object sender, RoutedEventArgs e)
-    {
-        if (Global.installdpsmode == 1)
-        {
-            Global.installdpsmode = 2;
-            ArcdpslistComboBox.Visibility = Visibility.Visible;
-            tuijiandps.Visibility = Visibility.Collapsed;
-        }
-        else
-        {
-            Global.installdpsmode = 1;
-            ArcdpslistComboBox.Visibility = Visibility.Collapsed;
-            tuijiandps.Visibility = Visibility.Visible;
-        }
     }
 
     private void ArcdpslistComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
