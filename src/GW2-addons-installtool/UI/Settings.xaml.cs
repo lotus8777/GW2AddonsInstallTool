@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,8 +23,8 @@ public partial class Settings : Page
     {
         InitializeComponent();
         Global.Loadall();
-        label.Content = "工具版本: v" + Global.Toolversion;
-        labebox1.Text = Global.GamePath;
+        label.Text = "v" + Global.Toolversion;
+        labebox1.Text = string.IsNullOrEmpty(Global.GamePath) ? "未选择游戏目录" : Global.GamePath;
         tuijiandps.Visibility = Visibility.Hidden;
 
         string arcdpsIni = Path.Combine(Global.GamePath, @"addons\arcdps\arcdps.ini");
@@ -51,29 +52,59 @@ public partial class Settings : Page
             BtnNexus.IsChecked = false;
             BtnNormal.IsChecked = true;
             BtnTrouble.IsChecked = false;
-            nowinstallmodedesc.Content = "模式: 正常模式";
+            nowinstallmodedesc.Text = "正常模式";
         }
         else if (Global.installpluginmode == 1)
         {
             BtnNexus.IsChecked = false;
             BtnNormal.IsChecked = false;
             BtnTrouble.IsChecked = true;
-            nowinstallmodedesc.Content = "模式: 疑难模式";
+            nowinstallmodedesc.Text = "疑难模式";
         }
         else if (Global.installpluginmode == 2)
         {
             BtnNexus.IsChecked = true;
             BtnNormal.IsChecked = false;
             BtnTrouble.IsChecked = false;
-            nowinstallmodedesc.Content = "模式: Nexus模式";
+            nowinstallmodedesc.Text = "Nexus模式";
         }
 
-        label1.Visibility = Visibility.Hidden;
-        label2.Visibility = Visibility.Hidden;
-        update_self_button.Visibility = Visibility.Hidden;
-        jindu.Visibility = Visibility.Hidden;
-
         Task.Run(() => getwebinfomx());
+        Task.Run(async () => await CheckGitHubReleaseVersionAsync());
+    }
+
+    private async Task CheckGitHubReleaseVersionAsync()
+    {
+        try
+        {
+            using HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "GW2AddonsInstallTool");
+            string url = "https://api.github.com/repos/lotus8777/GW2AddonsInstallTool/releases/latest";
+            HttpResponseMessage resp = await client.GetAsync(url).ConfigureAwait(false);
+            if (resp.IsSuccessStatusCode)
+            {
+                string json = await resp.Content.ReadAsStringAsync().ConfigureAwait(false);
+                using JsonDocument doc = JsonDocument.Parse(json);
+                if (doc.RootElement.TryGetProperty("tag_name", out JsonElement tagElem))
+                {
+                    string latestTag = tagElem.GetString() ?? "";
+                    string cleanVersion = latestTag.TrimStart('v', 'V');
+                    if (!string.IsNullOrEmpty(cleanVersion) && !cleanVersion.Equals(Global.Toolversion, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Global.Toolversion_get = cleanVersion;
+                        Dispatcher.Invoke(() =>
+                        {
+                            label1.Text = $"发现新版本 {latestTag}!";
+                            updatePanel.Visibility = Visibility.Visible;
+                        });
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("GitHub Release 版本检测失败", ex);
+        }
     }
 
     public void getwebinfomx()
@@ -86,38 +117,13 @@ public partial class Settings : Page
 
             if (task.IsCompleted)
             {
-                if (string.IsNullOrEmpty(Global.Toolversion_get))
-                {
-                    MessageBox.Show("未获取到工具最新版本信息!您的网络可能有问题,请重启本工具再试一次");
-                    Dispatcher.Invoke(() =>
-                    {
-                        label1.Visibility = Visibility.Hidden;
-                        label2.Visibility = Visibility.Hidden;
-                        update_self_button.Visibility = Visibility.Hidden;
-                        jindu.Visibility = Visibility.Hidden;
-                    });
-                }
-                else if (!Global.Toolversion_get.Equals(Global.Toolversion))
-                {
-                    Global.updatevisible = 1;
-                    Dispatcher.Invoke(() =>
-                    {
-                        label.Content = "有新版本: v" + Global.Toolversion_get;
-                        label1.Visibility = Visibility.Visible;
-                        label2.Visibility = Visibility.Hidden;
-                        update_self_button.Visibility = Visibility.Visible;
-                        jindu.Visibility = Visibility.Hidden;
-                        label1.Foreground = new SolidColorBrush(Colors.Red);
-                    });
-                }
-
                 Dispatcher.Invoke(() =>
                 {
                     if (Global.installdpsmode == 1)
                     {
                         ArcdpslistComboBox.Visibility = Visibility.Hidden;
                         tuijiandps.Visibility = Visibility.Visible;
-                        labe1_1.Content = "推荐版本：" + Global.fileday;
+                        labe1_1.Text = "推荐版本：" + Global.fileday;
                     }
                     else if (Global.installdpsmode == 2)
                     {
@@ -139,12 +145,7 @@ public partial class Settings : Page
             {
                 Dispatcher.Invoke(() =>
                 {
-                    labe1.Foreground = new SolidColorBrush(Colors.Red);
                     nextPage.Visibility = Visibility.Hidden;
-                    label1.Visibility = Visibility.Hidden;
-                    label2.Visibility = Visibility.Hidden;
-                    update_self_button.Visibility = Visibility.Hidden;
-                    jindu.Visibility = Visibility.Hidden;
                 });
             }
         }
@@ -179,7 +180,6 @@ public partial class Settings : Page
                     {
                         Global.fileday = bodyApi.Fileday;
                         Global.qqgroup = bodyApi.QQgroup;
-                        Global.Toolversion_get = bodyApi.Vers;
                         foreach (Addon addon in Global.Addons)
                         {
                             foreach (boFile boFile2 in bodyApi.Files)
@@ -199,7 +199,7 @@ public partial class Settings : Page
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("解析获取的API数据内容出错\n\n错误原因: " + ex.Message, "解析获取的 API数据 错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Logger.LogError("解析 Gitee API 数据出错", ex);
                 }
 
                 Dispatcher.Invoke(() =>
@@ -238,7 +238,7 @@ public partial class Settings : Page
             }
             catch (Exception ex2)
             {
-                MessageBox.Show("解析数据内容出错\n\n错误原因: " + ex2.Message, "解析 API数据 错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                Logger.LogError("解析 API 数据出错", ex2);
             }
 
             try
@@ -302,12 +302,12 @@ public partial class Settings : Page
             }
             catch (Exception ex3)
             {
-                MessageBox.Show("获取历史DPS版本信息出错\n\n错误原因: " + ex3.Message, "历史DPS版本解析 错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                Logger.LogError("历史 DPS 版本解析失败", ex3);
             }
         }
         catch (Exception ex4)
         {
-            MessageBox.Show("网络链接错误!\r\n请尝试重启本工具或稍后重试\r\n错误信息: " + ex4.Message, "网络连接 错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            Logger.LogError("网络链接失败", ex4);
         }
     }
 
@@ -358,7 +358,7 @@ public partial class Settings : Page
             }
             else
             {
-                MessageBox.Show($"所选目录路径含有中文字符或未找到 Gw2-64.exe\r\n正确路径样式:C:\\Program Files\\Guild Wars 2\r\n您选择的路径:{selectedPath}\r\n", "目录识别错误!");
+                MessageBox.Show($"所选目录未找到 Gw2-64.exe\r\n正确路径示例: C:\\Program Files\\Guild Wars 2\r\n您选择的路径: {selectedPath}", "目录选择错误");
             }
         }
     }
@@ -433,17 +433,6 @@ public partial class Settings : Page
     private void update_button_clicked(object sender, RoutedEventArgs e)
     {
         bool canProceed = true;
-        if (Global.updatevisible == 2)
-        {
-            MessageBox.Show("此功能当前不可用\r\n请耐心等待本工具更新完成!", "提醒!");
-            return;
-        }
-        if (Global.updatevisible == 3)
-        {
-            MessageBox.Show("此功能当前不可用\r\n请关闭本工具,并等待20秒(后台静默更新),再重新打开本工具!", "提醒!");
-            return;
-        }
-
         try
         {
             Process[] processes = Process.GetProcessesByName("Gw2-64");
@@ -507,6 +496,14 @@ public partial class Settings : Page
 
     private void update_self_click(object sender, RoutedEventArgs e)
     {
+        try
+        {
+            Process.Start(new ProcessStartInfo("https://github.com/lotus8777/GW2AddonsInstallTool/releases/latest") { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("打开浏览器失败: " + ex.Message);
+        }
     }
 
     private void installmode_Click(object sender, RoutedEventArgs e)
@@ -519,7 +516,7 @@ public partial class Settings : Page
                 BtnNexus.IsChecked = true;
                 BtnNormal.IsChecked = false;
                 BtnTrouble.IsChecked = false;
-                nowinstallmodedesc.Content = "模式: Nexus模式";
+                nowinstallmodedesc.Text = "Nexus模式";
             }
             else if (toggleButton == BtnNormal)
             {
@@ -527,7 +524,7 @@ public partial class Settings : Page
                 BtnNexus.IsChecked = false;
                 BtnNormal.IsChecked = true;
                 BtnTrouble.IsChecked = false;
-                nowinstallmodedesc.Content = "模式: 正常模式";
+                nowinstallmodedesc.Text = "正常模式";
             }
             else if (toggleButton == BtnTrouble)
             {
@@ -535,7 +532,7 @@ public partial class Settings : Page
                 BtnNexus.IsChecked = false;
                 BtnNormal.IsChecked = false;
                 BtnTrouble.IsChecked = true;
-                nowinstallmodedesc.Content = "模式: 疑难模式";
+                nowinstallmodedesc.Text = "疑难模式";
             }
         }
         installmodeMenuPopup.IsOpen = false;

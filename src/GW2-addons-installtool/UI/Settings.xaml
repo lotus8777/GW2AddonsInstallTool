@@ -5,137 +5,159 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:GW2_addons_installtool.UI"
       ShowsNavigationUI="False" Title="Settings">
-  <Grid>
+  <Grid Margin="20,10,20,15">
     <Grid.RowDefinitions>
-      <RowDefinition Height="Auto" />
-      <RowDefinition Height="Auto" />
-      <RowDefinition Height="Auto" />
-      <RowDefinition Height="Auto" />
+      <!-- Header Row -->
+      <RowDefinition Height="45" />
+      <!-- Main Content Row -->
+      <RowDefinition Height="*" />
     </Grid.RowDefinitions>
 
-    <!-- Top Window Controls -->
-    <DockPanel Name="windowControls" Dock="Top" VerticalAlignment="Center" Height="63">
-      <Button Name="close" Content="x" Width="25" Height="25" DockPanel.Dock="Right" Background="#00FFFFFF" Foreground="#FF42FF00" FontSize="16" Margin="0,0,8,38" BorderThickness="0" FontFamily="Leelawadee UI" Click="close_clicked" />
-      <Button Name="minimize" Content="-" Width="25" Height="25" DockPanel.Dock="Right" HorizontalAlignment="Right" Background="#00FFFFFF" Foreground="#FF42FF00" FontSize="16" Margin="0,0,0,38" BorderThickness="0" FontFamily="Leelawadee UI" Click="minimize_clicked" />
-      <Label Content="" PreviewMouseDown="TitleBar_MouseHeld" />
-    </DockPanel>
-
-    <!-- App Title & Version -->
-    <Label FontWeight="Bold" FontSize="30" Foreground="#FF696969" Margin="45,35,0,0" FontFamily="Microsoft YaHei UI" Width="225" Height="50" HorizontalAlignment="Left" VerticalAlignment="Top" Content="永恒泰蜜的克鲁" Grid.RowSpan="3" />
-    <TextBlock Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.RowSpan="3" Margin="60,80,0,0" Height="25" Width="175" FontSize="16" Foreground="#FF696969" FontFamily="Microsoft YaHei UI Light" Text="激战2插件安装更新工具" />
-
-    <Label Name="label" Content="工具版本: v3.2.6" HorizontalAlignment="Left" Foreground="#FF696969" Margin="50,5,0,0" Grid.Row="0" VerticalAlignment="Top" Width="220" />
-    <Label Name="label1" Content="New!" HorizontalAlignment="Left" Foreground="#FF696969" Margin="150,5,0,0" Grid.Row="0" VerticalAlignment="Top" Width="65" />
-    <Label Name="label2" Content="" HorizontalAlignment="Left" Foreground="#FF696969" Margin="50,20,0,0" Grid.Row="0" VerticalAlignment="Top" Width="225" />
-    <Button Name="update_self_button" Grid.Row="0" Margin="190,7,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" Height="20" Content="更新" Background="#00FFFFFF" Foreground="#FF696969" FontFamily="Microsoft YaHei UI Light" BorderBrush="#FF696969" BorderThickness="1" Click="update_self_click" />
-    <ProgressBar Name="jindu" HorizontalAlignment="Left" Height="10" Margin="55,28,0,0" Grid.Row="0" VerticalAlignment="Top" Width="200" />
-
-    <!-- Addon Selection List (Right Side) -->
-    <Border Grid.Row="0" Grid.RowSpan="3" Width="200" HorizontalAlignment="Left" Margin="560,50,0,31" BorderThickness="1" BorderBrush="#FF696969" Background="#FFF5F5F5">
-      <StackPanel Width="200" Height="313" HorizontalAlignment="Left">
-        <Label FontSize="15" FontFamily="Microsoft YaHei UI" Margin="0,0,0,0" HorizontalAlignment="Center" Foreground="#FF696969" Content="选择插件" FontWeight="Bold" />
-        <ListBox Name="addons" Height="285" ItemContainerStyle="{StaticResource AddonListItem}" BorderThickness="0" Background="#FFF5F5F5" Style="{DynamicResource ScrollableAddonListBox}" SelectionChanged="addOnList_SelectedIndexChanged">
-          <ItemsControl.ItemTemplate>
-            <DataTemplate>
-              <StackPanel Orientation="Horizontal">
-                <CheckBox Name="TheCheckBox" Padding="5,5,0,5" VerticalAlignment="Center" FontFamily="Microsoft YaHei" FontWeight="Bold" Foreground="#FF696969" FontSize="13" Width="20" Style="{StaticResource AddonListCheckBox}" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" IsChecked="{Binding IsSelected, Mode=TwoWay}" Click="addonschanged" />
-                <Label Name="add_name" VerticalAlignment="Center" FontFamily="Microsoft YaHei UI" Foreground="#FF696969" FontWeight="Bold" FontSize="13" Content="{Binding Addon_name}" />
-              </StackPanel>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ListBox>
-      </StackPanel>
-    </Border>
-
-    <!-- DPS Version Selection -->
-    <Border Name="label_versions" Grid.Row="2" Width="165" HorizontalAlignment="Left" Margin="265,15,0,265" BorderThickness="1" BorderBrush="#FF696969" Background="#FFF5F5F5">
-      <StackPanel Width="165" HorizontalAlignment="Left" VerticalAlignment="Top">
-        <Label Name="labe1" Content="选择DPS版本" HorizontalAlignment="Center" Foreground="#FF696969" VerticalAlignment="Top" />
-        <Button Name="installdpsmodeMenuButton" Margin="141,-25,0,0" Content="⇌" Width="22" Height="22" Background="#FFF5F5F5" Foreground="#FF696969" BorderBrush="#FFF5F5F5" BorderThickness="0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="installdpsmode_Click" />
-        <ComboBox Name="ArcdpslistComboBox" HorizontalAlignment="Left" Margin="1,0,0,0" VerticalAlignment="Top" Width="161" FontSize="12" MaxDropDownHeight="195" SelectionChanged="ArcdpslistComboBox_SelectionChanged">
-          <ItemsControl.ItemTemplate>
-            <DataTemplate>
-              <TextBlock Margin="0,0,0,0" Width="131">
-                <TextBlock.Text>
-                  <MultiBinding StringFormat="{}{0} {1}">
-                    <Binding Path="dps_descr" />
-                    <Binding Path="dps_name" />
-                  </MultiBinding>
-                </TextBlock.Text>
-              </TextBlock>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ComboBox>
-        <Border Name="tuijiandps" Width="161" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1,-21,0,0" BorderThickness="1" BorderBrush="#FFACACAC" Background="#FFF5F5F5">
-          <StackPanel Width="161" HorizontalAlignment="Left">
-            <Label Name="labe1_1" Margin="0,-3,0,0" Content="" HorizontalAlignment="Left" Foreground="#FF696969" VerticalAlignment="Top" />
-          </StackPanel>
+    <!-- Header Area -->
+    <Grid Grid.Row="0" PreviewMouseDown="TitleBar_MouseHeld">
+      <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+        <TextBlock Text="激战2插件安装更新工具" FontSize="18" FontWeight="Bold" Foreground="#FF2D3748" FontFamily="Microsoft YaHei UI" VerticalAlignment="Center" />
+        <TextBlock Text="永恒泰蜜的克鲁" FontSize="12" Foreground="#FF718096" FontFamily="Microsoft YaHei UI" VerticalAlignment="Center" Margin="10,2,0,0" />
+        <Border CornerRadius="4" Background="#EBF8FF" BorderBrush="#BEE3F8" BorderThickness="1" Margin="12,0,0,0" Padding="6,2" VerticalAlignment="Center">
+          <TextBlock Name="label" Text="v3.2.7" FontSize="11" Foreground="#FF2B6CB0" FontWeight="Bold" />
         </Border>
+        <StackPanel Name="updatePanel" Orientation="Horizontal" Visibility="Collapsed" Margin="10,0,0,0" VerticalAlignment="Center">
+          <Border CornerRadius="4" Background="#FFF5F5" Padding="6,2" VerticalAlignment="Center">
+            <TextBlock Name="label1" Text="发现新版本!" FontSize="11" Foreground="#FFE53E3E" FontWeight="Bold" />
+          </Border>
+          <Button Name="update_self_button" Content="下载最新版" Margin="6,0,0,0" Padding="8,2" FontSize="11" Background="#FFE53E3E" Foreground="White" BorderThickness="0" FontWeight="Bold" Click="update_self_click" />
+        </StackPanel>
       </StackPanel>
-    </Border>
 
-    <!-- Installation Mode Selection Button -->
-    <Grid Name="MenuPopupinstallmode" Grid.Row="2" Margin="265,75,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
-      <StackPanel Orientation="Horizontal">
-        <Label Name="nowinstallmodedesc" Content="模式: Nexus模式" Foreground="#FF696969" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" />
-        <Button Name="installmodeMenuButton" Content="切换模式 ⇌" Width="90" Height="26" Background="#7FABEFF9" Foreground="#FF0AE417" BorderBrush="#FFC9C9C9" BorderThickness="1" FontFamily="Microsoft YaHei UI" FontWeight="Bold" FontSize="12" Click="installmodeMenuButton_Click" Margin="10,0,0,0" />
+      <!-- Window Minimize / Close Buttons -->
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,0,0">
+        <Button Name="minimize" Content="─" Width="28" Height="24" Background="Transparent" Foreground="#FF718096" FontSize="12" BorderThickness="0" Click="minimize_clicked" />
+        <Button Name="close" Content="✕" Width="28" Height="24" Background="Transparent" Foreground="#FF718096" FontSize="12" BorderThickness="0" Click="close_clicked" />
       </StackPanel>
-      <Popup Name="installmodeMenuPopup" Placement="Bottom" HorizontalOffset="0" VerticalOffset="0" StaysOpen="False">
-        <Border BorderBrush="#FFC9C9C9" BorderThickness="1" Background="#FCFCFC" Padding="10">
-          <StackPanel>
-            <TextBlock Text="安装模式选择" HorizontalAlignment="Center" Foreground="#FF696969" Margin="0,0,0,5" FontWeight="Bold" />
-            <Border CornerRadius="20" Background="#ebecf0" Padding="0" Margin="0,4,0,0" Height="32" Width="100" VerticalAlignment="Top" HorizontalAlignment="Left">
-              <Grid Margin="2,0">
-                <ToggleButton Name="BtnNexus" Content="Nexus模式" Style="{StaticResource installClickButton}" Click="installmode_Click" />
-              </Grid>
-            </Border>
-            <Border CornerRadius="20" Background="#ebecf0" Padding="0" Margin="0,4,0,0" Height="32" Width="100" VerticalAlignment="Top" HorizontalAlignment="Left">
-              <Grid Margin="2,0">
-                <ToggleButton Name="BtnNormal" Content="正常模式" Style="{StaticResource installClickButton}" Click="installmode_Click" />
-              </Grid>
-            </Border>
-            <Border CornerRadius="20" Background="#ebecf0" Padding="0" Margin="0,4,0,0" Height="32" Width="100" VerticalAlignment="Top" HorizontalAlignment="Left">
-              <Grid Margin="2,0">
-                <ToggleButton Name="BtnTrouble" Content="疑难模式" Style="{StaticResource installClickButton}" Click="installmode_Click" />
-              </Grid>
-            </Border>
-          </StackPanel>
-        </Border>
-      </Popup>
     </Grid>
 
-    <!-- ARCDPS Font Size Control (Moved to Main Screen) -->
-    <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="265,115,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
-      <Label Content="ARCDPS 字体大小:" Foreground="#FF696969" FontWeight="Bold" FontSize="12" VerticalAlignment="Center" Padding="0" />
-      <Slider Name="fontSizeSlider" Width="100" Minimum="13" Maximum="24" SmallChange="1" TickPlacement="BottomRight" IsSnapToTickEnabled="True" VerticalAlignment="Center" Margin="8,0,5,0" ValueChanged="fontSizeSlider_ValueChanged" />
-      <Label Name="fontSizeValueLabel" Content="{Binding Value, ElementName=fontSizeSlider}" Foreground="#FF696969" FontWeight="Bold" FontSize="12" VerticalAlignment="Center" Padding="0" />
-    </StackPanel>
+    <!-- Main Content Area -->
+    <Grid Grid.Row="1" Margin="0,8,0,0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="500" />
+        <ColumnDefinition Width="15" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
 
-    <!-- Maintenance Action Buttons (Moved to Main Screen) -->
-    <StackPanel Grid.Row="2" Margin="265,145,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
-      <Button Content="恢复默认标题栏" Width="145" Height="26" Margin="0,0,0,5" Foreground="#FF0AE417" Background="#7FABEFF9" FontFamily="Microsoft YaHei UI" FontSize="12" FontWeight="Bold" BorderThickness="1" BorderBrush="#FFC9C9C9" Style="{StaticResource BigContentButton}" Click="RecoverDT_button_Click" />
-      <Button Content="卸载已安装插件" Width="145" Height="26" Margin="0,0,0,5" Foreground="#FFF50404" Background="#FFFFEBEB" FontFamily="Microsoft YaHei UI" FontSize="12" FontWeight="Bold" BorderThickness="1" BorderBrush="#FFFFC1C1" Style="{StaticResource BigContentButton}" Click="uninstall_clicked_Click" />
-      <Button Content="删除插件配置文件" Width="145" Height="26" Margin="0,0,0,0" Foreground="#FFF50404" Background="#FFFFEBEB" FontFamily="Microsoft YaHei UI" FontSize="12" FontWeight="Bold" BorderThickness="1" BorderBrush="#FFFFC1C1" Style="{StaticResource BigContentButton}" Click="uninstall_config_Click" />
-    </StackPanel>
+      <!-- Left Column: Settings Cards -->
+      <StackPanel Grid.Column="0">
+        <!-- Card 1: 安装模式与滤镜配置 -->
+        <Border CornerRadius="8" Background="#FAFAFA" BorderBrush="#E2E8F0" BorderThickness="1" Padding="14" Margin="0,0,0,10">
+          <StackPanel>
+            <TextBlock Text="⚙️ 安装模式与滤镜配置" FontSize="13" FontWeight="Bold" Foreground="#FF2D3748" Margin="0,0,0,10" />
+            <Grid Margin="0,0,0,10">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              
+              <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center">
+                <TextBlock Text="安装模式:" FontSize="13" Foreground="#FF4A5568" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,6,0" />
+                <TextBlock Name="nowinstallmodedesc" Text="Nexus模式" FontSize="13" Foreground="#FF2B6CB0" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,6,0" />
+                <Button Name="installmodeMenuButton" Content="切换模式 ⇌" Padding="6,2" Background="#EDF2F7" Foreground="#FF2D3748" BorderBrush="#CBD5E0" BorderThickness="1" FontSize="12" FontWeight="Bold" Click="installmodeMenuButton_Click" />
+                <Popup Name="installmodeMenuPopup" Placement="Bottom" StaysOpen="False">
+                  <Border BorderBrush="#CBD5E0" BorderThickness="1" Background="White" CornerRadius="6" Padding="6">
+                    <StackPanel Width="110">
+                      <ToggleButton Name="BtnNexus" Content="Nexus模式" Margin="0,2" Height="28" Click="installmode_Click" />
+                      <ToggleButton Name="BtnNormal" Content="正常模式" Margin="0,2" Height="28" Click="installmode_Click" />
+                      <ToggleButton Name="BtnTrouble" Content="疑难模式" Margin="0,2" Height="28" Click="installmode_Click" />
+                    </StackPanel>
+                  </Border>
+                </Popup>
+              </StackPanel>
 
-    <!-- ReShade Filter Mode Toggles -->
-    <Border Grid.Row="2" CornerRadius="20" Background="#ebecf0" Padding="0" Margin="438,-5,0,0" Height="32" Width="110" VerticalAlignment="Top" HorizontalAlignment="Left">
-      <Grid Margin="2,0">
-        <ToggleButton Name="BtnReShadeMode1" Content="滤镜模式一" Style="{StaticResource installClickButton}" Click="ReShadeMode_Click" />
-      </Grid>
-    </Border>
-    <Border Grid.Row="2" CornerRadius="20" Background="#ebecf0" Padding="0" Margin="438,40,0,0" Height="32" Width="110" VerticalAlignment="Top" HorizontalAlignment="Left">
-      <Grid Margin="2,0">
-        <ToggleButton Name="BtnReShadeMode2" Content="滤镜模式二" Style="{StaticResource installClickButton}" Click="ReShadeMode_Click" />
-      </Grid>
-    </Border>
+              <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <TextBlock Text="ReShade:" FontSize="13" Foreground="#FF4A5568" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,6,0" />
+                <ToggleButton Name="BtnReShadeMode1" Content="模式一" Padding="6,2" Margin="0,0,4,0" Click="ReShadeMode_Click" />
+                <ToggleButton Name="BtnReShadeMode2" Content="模式二" Padding="6,2" Click="ReShadeMode_Click" />
+              </StackPanel>
+            </Grid>
 
-    <!-- Game Path Input -->
-    <TextBlock Grid.Row="0" Grid.RowSpan="4" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="44,370,0,0" FontFamily="Microsoft YaHei UI Light" Foreground="#FF696969" FontSize="14" Text="游戏路径" />
-    <TextBox Name="labebox1" Text="" Grid.Row="3" Margin="44,-3,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="505" Height="23" Background="#FFD3D3D3" BorderThickness="0" FontSize="16" FontFamily="Microsoft YaHei UI Light" />
+            <!-- DPS Version & Font Size Row -->
+            <Grid Margin="0,4,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              
+              <!-- DPS Version -->
+              <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="DPS版本:" FontSize="13" Foreground="#FF4A5568" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,6,0" />
+                <Button Name="installdpsmodeMenuButton" Content="⇌" Width="22" Height="22" Margin="0,0,6,0" Click="installdpsmode_Click" />
+                <ComboBox Name="ArcdpslistComboBox" Width="135" FontSize="12" SelectionChanged="ArcdpslistComboBox_SelectionChanged" />
+                <Border Name="tuijiandps" Background="#EDF2F7" CornerRadius="4" Padding="6,2">
+                  <TextBlock Name="labe1_1" Text="推荐版本" FontSize="11" Foreground="#FF2D3748" />
+                </Border>
+              </StackPanel>
 
-    <!-- Bottom Action Buttons -->
-    <Button Name="nextPage_Copy1" Grid.Row="3" Content="选择激战2游戏目录" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="560,-20,0,0" Width="200" Height="40" Foreground="#FF0AE417" Background="#7FABEFF9" FontFamily="Microsoft YaHei UI" FontSize="16" BorderThickness="1" Padding="2" BorderBrush="#FFC9C9C9" Style="{StaticResource BigContentButton}" FontWeight="Bold" Click="getpatch_button_clicked" />
-    <Button Name="nextPage" Grid.Row="3" Content="安装/更新插件" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="560,30,0,0" Width="200" Height="40" Foreground="#FF0AE417" Background="#7FABEFF9" FontFamily="Microsoft YaHei UI" FontSize="16" BorderThickness="1" Padding="2" BorderBrush="#FFC9C9C9" Style="{StaticResource BigContentButton}" FontWeight="Bold" Click="update_button_clicked" />
+              <!-- Font Size -->
+              <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <TextBlock Text="字体大小:" FontSize="13" Foreground="#FF4A5568" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,4,0" />
+                <Slider Name="fontSizeSlider" Width="80" Minimum="13" Maximum="24" SmallChange="1" TickPlacement="None" IsSnapToTickEnabled="True" VerticalAlignment="Center" ValueChanged="fontSizeSlider_ValueChanged" />
+                <TextBlock Name="fontSizeValueLabel" Text="{Binding Value, ElementName=fontSizeSlider}" FontSize="13" FontWeight="Bold" Foreground="#FF2D3748" VerticalAlignment="Center" Margin="4,0,0,0" Width="18" />
+              </StackPanel>
+            </Grid>
+          </StackPanel>
+        </Border>
+
+        <!-- Card 2: 维护与工具 -->
+        <Border CornerRadius="8" Background="#FAFAFA" BorderBrush="#E2E8F0" BorderThickness="1" Padding="14" Margin="0,0,0,10">
+          <StackPanel>
+            <TextBlock Text="🛠️ 维护与工具" FontSize="13" FontWeight="Bold" Foreground="#FF2D3748" Margin="0,0,0,10" />
+            <UniformGrid Columns="3">
+              <Button Content="恢复默认标题栏" Height="30" Margin="0,0,6,0" Background="#EDF2F7" Foreground="#FF2D3748" BorderBrush="#CBD5E0" BorderThickness="1" FontWeight="Bold" FontSize="12" Click="RecoverDT_button_Click" />
+              <Button Content="卸载已安装插件" Height="30" Margin="0,0,6,0" Background="#FFF5F5" Foreground="#FFE53E3E" BorderBrush="#FEB2B2" BorderThickness="1" FontWeight="Bold" FontSize="12" Click="uninstall_clicked_Click" />
+              <Button Content="删除配置文件" Height="30" Background="#FFF5F5" Foreground="#FFE53E3E" BorderBrush="#FEB2B2" BorderThickness="1" FontWeight="Bold" FontSize="12" Click="uninstall_config_Click" />
+            </UniformGrid>
+          </StackPanel>
+        </Border>
+
+        <!-- Card 3: 激战2游戏根目录 -->
+        <Border CornerRadius="8" Background="#FAFAFA" BorderBrush="#E2E8F0" BorderThickness="1" Padding="14">
+          <StackPanel>
+            <TextBlock Text="📁 激战2游戏根目录" FontSize="13" FontWeight="Bold" Foreground="#FF2D3748" Margin="0,0,0,8" />
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="110" />
+              </Grid.ColumnDefinitions>
+              <TextBox Name="labebox1" Grid.Column="0" Height="30" VerticalContentAlignment="Center" Padding="6,0" FontSize="12" FontFamily="Consolas, Microsoft YaHei UI" Background="White" BorderBrush="#CBD5E0" BorderThickness="1" IsReadOnly="True" />
+              <Button Name="nextPage_Copy1" Grid.Column="1" Content="选择游戏目录" Height="30" Margin="8,0,0,0" Background="#3182CE" Foreground="White" BorderThickness="0" FontWeight="Bold" FontSize="12" Click="getpatch_button_clicked" />
+            </Grid>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+
+      <!-- Right Column: Addon Checklist & Big Install Button -->
+      <Border Grid.Column="2" CornerRadius="8" Background="#FAFAFA" BorderBrush="#E2E8F0" BorderThickness="1" Padding="12">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+
+          <TextBlock Grid.Row="0" Text="📦 选择安装插件" FontSize="13" FontWeight="Bold" Foreground="#FF2D3748" Margin="4,0,0,8" />
+
+          <ListBox Name="addons" Grid.Row="1" BorderThickness="0" Background="Transparent" SelectionChanged="addOnList_SelectedIndexChanged">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <StackPanel Orientation="Horizontal" Margin="2,3">
+                  <CheckBox Name="TheCheckBox" VerticalAlignment="Center" IsChecked="{Binding IsSelected, Mode=TwoWay}" Click="addonschanged" Margin="0,0,6,0" />
+                  <TextBlock Name="add_name" VerticalAlignment="Center" FontSize="13" Foreground="#FF2D3748" FontWeight="Bold" Text="{Binding Addon_name}" />
+                </StackPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ListBox>
+
+          <Button Name="nextPage" Grid.Row="2" Content="🚀 一键安装 / 更新插件" Height="40" Margin="0,8,0,0" Background="#38A169" Foreground="White" BorderThickness="0" FontWeight="Bold" FontSize="13" Click="update_button_clicked" />
+        </Grid>
+      </Border>
+    </Grid>
   </Grid>
 </Page>
