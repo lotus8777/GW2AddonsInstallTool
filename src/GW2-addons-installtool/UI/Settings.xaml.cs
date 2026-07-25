@@ -358,10 +358,12 @@ public partial class Settings : Page
         if (dialog.ShowDialog() == true)
         {
             string selectedPath = dialog.FolderName;
-            if (File.Exists(Path.Combine(selectedPath, "Gw2-64.exe")))
+            if (File.Exists(Path.Combine(selectedPath, "Gw2-64.exe")) || File.Exists(Path.Combine(selectedPath, "Gw2.exe")))
             {
                 Global.GamePath = selectedPath;
                 labebox1.Text = Global.GamePath;
+                Iniflie.Write("general", "GamePath", Global.GamePath, Iniflie.filename);
+                Iniflie.Save();
                 string arcdpsIni = Path.Combine(Global.GamePath, @"addons\arcdps\arcdps.ini");
                 if (File.Exists(arcdpsIni))
                 {

@@ -335,18 +335,15 @@ public partial class Install : Page
 
             string targetUnpackDir = gameRoot;
 
-            if (Global.installpluginmode == 2) // Nexus 模式
+            if (item.Id == 0 || item.Id == 10 || item.Id == 14) // ARCDPS(0), ReShade(10), Nexus核心(14) 包含核心加载器, 必须部署于游戏根目录
             {
-                if (item.Id == 10) // ReShade 滤镜 (属于全局滤镜，放置于游戏根目录)
-                {
-                    targetUnpackDir = gameRoot;
-                }
-                else
-                {
-                    targetUnpackDir = addonsDir;
-                }
+                targetUnpackDir = gameRoot;
             }
-            else // 正常模式 (0) 或 疑难模式 (1)
+            else if (Global.installpluginmode == 2) // Nexus 模式下的其他扩展子插件解压至 addons 目录
+            {
+                targetUnpackDir = addonsDir;
+            }
+            else // 正常模式 (0) 或 疑难模式 (1) 全部部署于游戏根目录
             {
                 targetUnpackDir = gameRoot;
             }
@@ -363,6 +360,15 @@ public partial class Install : Page
                 }
                 AppendLog($"[{item.Addon_name}] 解压并安装成功！\r\n");
             }
+        }
+
+        // 关键保障：校验并自动部署 DirectX 11 核心挂载文件 (d3d11.dll) 到游戏根目录 (Gw2-64.exe 同级)
+        string rootD3d11 = Path.Combine(gameRoot, "d3d11.dll");
+        string addonsD3d11 = Path.Combine(addonsDir, "d3d11.dll");
+        if (!File.Exists(rootD3d11) && File.Exists(addonsD3d11))
+        {
+            File.Copy(addonsD3d11, rootD3d11, overwrite: true);
+            AppendLog("已自动将核心加载器 d3d11.dll 部署至游戏根目录\r\n");
         }
 
         if (Directory.Exists(peiziDir))
