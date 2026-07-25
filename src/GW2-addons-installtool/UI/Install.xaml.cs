@@ -140,13 +140,17 @@ public partial class Install : Page
             Directory.CreateDirectory(cacheDir);
         }
 
+        int totalSelected = Global.Addons.Count(a => a.IsSelected);
+        int currentAddonIndex = 0;
+
         foreach (Addon item in Global.Addons)
         {
             if (!item.IsSelected) continue;
+            currentAddonIndex++;
 
             if (string.IsNullOrEmpty(item.Filename))
             {
-                AppendLog($"[警告] 插件 {item.Addon_name} 暂未获取到服务器文件名，跳过该项\r\n");
+                AppendLog($"[警告] 插件 [{item.Addon_name}] 暂未获取到服务器文件名，跳过该项\r\n");
                 continue;
             }
 
@@ -164,30 +168,30 @@ public partial class Install : Page
                     if (!fileMd5.Equals(item.Md5st, StringComparison.OrdinalIgnoreCase))
                     {
                         needDownload = true;
-                        AppendLog($"{item.Filename} 文件MD5不一致 (本地:{fileMd5} vs 服务器:{item.Md5st}) 需重新下载\r\n");
+                        AppendLog($"[{item.Addon_name}] {item.Filename} 文件MD5不一致 (本地:{fileMd5} vs 服务器:{item.Md5st}) 需重新下载\r\n");
                     }
                     else
                     {
-                        AppendLog($"{item.Filename} 文件MD5一致 无需下载\r\n");
+                        AppendLog($"[{item.Addon_name}] {item.Filename} 文件MD5一致 无需下载\r\n");
                     }
                 }
                 else
                 {
                     needDownload = true;
-                    AppendLog($"{item.Filename} 文件不存在 需下载\r\n");
+                    AppendLog($"[{item.Addon_name}] {item.Filename} 文件不存在 需下载\r\n");
                 }
 
                 if (needDownload)
                 {
                     if (string.IsNullOrEmpty(item.Urlpath))
                     {
-                        AppendLog($"[错误] 无法获取 {item.Addon_name} ({item.Filename}) 的下载链接，请检查网络设置\r\n");
+                        AppendLog($"[错误] 无法获取 [{item.Addon_name}] ({item.Filename}) 的下载链接，请检查网络设置\r\n");
                         continue;
                     }
 
                     Dispatcher.Invoke(() =>
                     {
-                        label.Content = item.Filename + " 下载中...";
+                        label.Content = $"({currentAddonIndex}/{totalSelected}) {item.Filename} 下载中...";
                         jindu.Value = 0;
                         jindu.Maximum = Math.Max(1, item.Filesize);
                     });
@@ -199,13 +203,13 @@ public partial class Install : Page
                             jindu.Maximum = total > 0 ? total : Math.Max(1, item.Filesize);
                             jindu.Value = read;
                             double pct = jindu.Maximum > 0 ? (jindu.Value / jindu.Maximum * 100.0) : 0;
-                            label.Content = $"{item.Filename} 下载中... {pct:0.00}%";
+                            label.Content = $"({currentAddonIndex}/{totalSelected}) {item.Filename} 下载中... {pct:0.00}%";
                         });
                     });
 
                     if (!ok)
                     {
-                        AppendLog($"[错误] {item.Filename} 下载失败\r\n");
+                        AppendLog($"[错误] [{item.Addon_name}] {item.Filename} 下载失败\r\n");
                     }
                 }
 
@@ -214,36 +218,26 @@ public partial class Install : Page
                     FileInfo fileInfo = new FileInfo(filePath);
                     if (item.Filesize > 0 && fileInfo.Length < item.Filesize)
                     {
-                        AppendLog($"[错误] {item.Addon_name} 压缩文件大小不一致 (本地:{fileInfo.Length} vs 服务器:{item.Filesize})\r\n");
+                        AppendLog($"[错误] [{item.Addon_name}] 压缩文件大小不一致 (本地:{fileInfo.Length} vs 服务器:{item.Filesize})\r\n");
                         MessageBox.Show($"{item.Addon_name} 压缩文件:{item.Filename}大小不一致,\r\n服务器文件大小:{item.Filesize}\r\n本地文件大小{fileInfo.Length}\r\n您需要点击返回重新开始安装!", "下载的文件大小不一致!");
                         Dispatcher.Invoke(() => back.IsEnabled = true);
                         return;
                     }
-                    AppendLog($"{item.Filename} 文件校验完成\r\n");
+                    AppendLog($"[{item.Addon_name}] {item.Filename} 文件校验完成\r\n");
                 }
             }
             catch (Exception ex)
             {
-                Logger.LogError($"处理插件 {item.Addon_name} 出错", ex);
+                Logger.LogError($"处理插件 [{item.Addon_name}] 出错", ex);
                 AppendLog($"[异常] {ex.Message}\r\n");
             }
         }
 
-        string dpsTitle = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-        string arcdpsLangFile = Path.Combine(Global.GamePath, @"addons\arcdps\arcdps_lang.ini");
-        if (File.Exists(arcdpsLangFile))
-        {
-            dpsTitle = Iniflie.Read("lang", "703", "", arcdpsLangFile);
-            AppendLog("已读取arcdps_lang.ini文件中的DPS标题栏\r\n");
-        }
-
         Dispatcher.Invoke(() =>
         {
-            label.Content = "清理文件...";
-            if (Global.installpluginmode == 0) jindu.Maximum = (项目数 + 1.0) * 10.0;
-            else if (Global.installpluginmode == 1) jindu.Maximum = (项目数 - 1.0) * 10.0;
-            else if (Global.installpluginmode == 2) jindu.Maximum = 项目数 * 10.0;
-            jindu.Value = 0.0;
+            label.Content = "清理老旧插件文件...";
+            jindu.Value = 0;
+            jindu.Maximum = 100;
         });
 
         string bin64 = Path.Combine(Global.GamePath, "bin64");
@@ -266,21 +260,20 @@ public partial class Install : Page
             foreach (string fileItem in cleanFiles)
             {
                 string p1 = Path.Combine(gameRoot, fileItem);
-                if (File.Exists(p1)) { File.Delete(p1); AppendLog($"删除 {p1}\r\n"); }
+                if (File.Exists(p1)) { File.Delete(p1); AppendLog($"清理 {fileItem}\r\n"); }
                 string p2 = Path.Combine(bin64, fileItem);
-                if (File.Exists(p2)) { File.Delete(p2); AppendLog($"删除 {p2}\r\n"); }
+                if (File.Exists(p2)) { File.Delete(p2); AppendLog($"清理 {fileItem}\r\n"); }
                 string p3 = Path.Combine(bin64, "cef", fileItem);
-                if (File.Exists(p3)) { File.Delete(p3); AppendLog($"删除 {p3}\r\n"); }
+                if (File.Exists(p3)) { File.Delete(p3); AppendLog($"清理 {fileItem}\r\n"); }
                 string p4 = Path.Combine(arcdpsDir, fileItem);
-                if (File.Exists(p4)) { File.Delete(p4); AppendLog($"删除 {p4}\r\n"); }
+                if (File.Exists(p4)) { File.Delete(p4); AppendLog($"清理 {fileItem}\r\n"); }
                 string p5 = Path.Combine(addonsDir, fileItem);
-                if (File.Exists(p5)) { File.Delete(p5); AppendLog($"删除 {p5}\r\n"); }
+                if (File.Exists(p5)) { File.Delete(p5); AppendLog($"清理 {fileItem}\r\n"); }
             }
         }
         catch (Exception ex)
         {
-            Logger.LogError("清理文件出错", ex);
-            MessageBox.Show(ex.Message + "\r\n\r\n清理文件失败,请尝试重启电脑后再安装插件!!!", "提醒!");
+            Logger.LogError("清理旧文件出错", ex);
         }
 
         if (!Directory.Exists(arcdpsDir)) Directory.CreateDirectory(arcdpsDir);
@@ -298,36 +291,61 @@ public partial class Install : Page
 
         if (Global.installpluginmode == 2)
         {
-            try
+            if (!Directory.Exists(Path.Combine(addonsDir, "Nexus"))) Directory.CreateDirectory(Path.Combine(addonsDir, "Nexus"));
+            if (!Directory.Exists(Path.Combine(addonsDir, @"Nexus\Fonts"))) Directory.CreateDirectory(Path.Combine(addonsDir, @"Nexus\Fonts"));
+
+            if (File.Exists(Path.Combine(peiziDir, "Settings.json")) && !File.Exists(Path.Combine(addonsDir, @"Nexus\Settings.json")))
             {
-                if (!Directory.Exists(Path.Combine(addonsDir, "Nexus"))) Directory.CreateDirectory(Path.Combine(addonsDir, "Nexus"));
-                if (!Directory.Exists(Path.Combine(addonsDir, @"Nexus\Fonts"))) Directory.CreateDirectory(Path.Combine(addonsDir, @"Nexus\Fonts"));
+                File.Copy(Path.Combine(peiziDir, "Settings.json"), Path.Combine(addonsDir, @"Nexus\Settings.json"), overwrite: true);
+            }
+            if (File.Exists(Path.Combine(peiziDir, "arcdps_font.ttf")))
+            {
+                File.Copy(Path.Combine(peiziDir, "arcdps_font.ttf"), Path.Combine(addonsDir, @"Nexus\Fonts\arcdps_font.ttf"), overwrite: true);
+            }
+        }
 
-                if (File.Exists(Path.Combine(peiziDir, "Settings.json")) && !File.Exists(Path.Combine(addonsDir, @"Nexus\Settings.json")))
-                {
-                    File.Copy(Path.Combine(peiziDir, "Settings.json"), Path.Combine(addonsDir, @"Nexus\Settings.json"), overwrite: true);
-                }
-                if (File.Exists(Path.Combine(peiziDir, "arcdps_font.ttf")))
-                {
-                    File.Copy(Path.Combine(peiziDir, "arcdps_font.ttf"), Path.Combine(addonsDir, @"Nexus\Fonts\arcdps_font.ttf"), overwrite: true);
-                }
+        AppendLog("===== 开始解压与安装所有已勾选插件 =====\r\n");
+        foreach (Addon item in Global.Addons)
+        {
+            if (!item.IsSelected) continue;
+            if (string.IsNullOrEmpty(item.Filename)) continue;
 
-                if (Global.Addons.Count > 0 && Global.Addons[0].IsSelected)
+            string zipPath = Path.Combine(cacheDir, item.Filename);
+            if (!File.Exists(zipPath))
+            {
+                AppendLog($"[警告] 文件未找到，跳过解压: {item.Filename}\r\n");
+                continue;
+            }
+
+            string targetUnpackDir = gameRoot;
+
+            if (Global.installpluginmode == 2) // Nexus 模式
+            {
+                if (item.Id == 10) // ReShade 滤镜 (属于全局滤镜，放置于游戏根目录)
                 {
-                    string arcZip = Path.Combine(cacheDir, Global.Addons[0].Filename);
-                    if (UnpackFiles(addonsDir + "\\", arcZip))
-                    {
-                        AppendLog($"{Global.Addons[0].Filename} 文件解压完成\r\n");
-                    }
+                    targetUnpackDir = gameRoot;
+                }
+                else
+                {
+                    targetUnpackDir = addonsDir;
+                }
+            }
+            else // 正常模式 (0) 或 疑难模式 (1)
+            {
+                targetUnpackDir = gameRoot;
+            }
+
+            AppendLog($"正在解压 [{item.Addon_name}] ({item.Filename}) 到 {targetUnpackDir}...\r\n");
+            if (UnpackFiles(targetUnpackDir + "\\", zipPath))
+            {
+                if (Global.installpluginmode == 2 && item.Id == 0)
+                {
                     if (File.Exists(Path.Combine(addonsDir, "d3d9.dll")))
                     {
                         File.Move(Path.Combine(addonsDir, "d3d9.dll"), Path.Combine(addonsDir, "ArcDPS.dll"), overwrite: true);
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Nexus 模式安装出错", ex);
+                AppendLog($"[{item.Addon_name}] 解压并安装成功！\r\n");
             }
         }
 
@@ -338,7 +356,7 @@ public partial class Install : Page
 
         Dispatcher.Invoke(() =>
         {
-            AppendLog("安装完成\r\n");
+            AppendLog("===== 所有插件安装全部完成 =====\r\n");
             label.Content = "安装完成";
             jindu.Value = jindu.Maximum;
             back.IsEnabled = true;
