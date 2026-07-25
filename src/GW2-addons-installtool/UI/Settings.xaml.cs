@@ -26,6 +26,12 @@ public partial class Settings : Page
         label.Text = "v" + Global.Toolversion;
         labebox1.Text = string.IsNullOrEmpty(Global.GamePath) ? "未选择游戏目录" : Global.GamePath;
 
+        ArcdpslistComboBox.ItemsSource = Global.Arcdpslists;
+        if (Global.Arcdpslists.Count > 0)
+        {
+            ArcdpslistComboBox.SelectedIndex = 0;
+        }
+
         string arcdpsIni = Path.Combine(Global.GamePath, @"addons\arcdps\arcdps.ini");
         if (File.Exists(arcdpsIni))
         {
@@ -168,6 +174,12 @@ public partial class Settings : Page
                     {
                         Global.fileday = bodyApi.Fileday;
                         Global.qqgroup = bodyApi.QQgroup;
+
+                        if (Global.Arcdpslists.Count > 0)
+                        {
+                            Global.Arcdpslists[0].dps_descr = $"推荐版本 ({Global.fileday})";
+                        }
+
                         foreach (Addon addon in Global.Addons)
                         {
                             foreach (boFile boFile2 in bodyApi.Files)
@@ -213,6 +225,10 @@ public partial class Settings : Page
                     if (asset2.Name.Equals("d3d11.zip", StringComparison.OrdinalIgnoreCase))
                     {
                         Global.tuijianarcdpsurl = asset2.BrowserDownloadUrl;
+                        if (Global.Arcdpslists.Count > 0)
+                        {
+                            Global.Arcdpslists[0].Urlpath = asset2.BrowserDownloadUrl;
+                        }
                     }
                     if (asset2.Name.Equals("nexus_arcdps.dll", StringComparison.OrdinalIgnoreCase))
                     {
@@ -236,27 +252,29 @@ public partial class Settings : Page
                 string json2 = await val2.Content.ReadAsStringAsync();
                 Listbodyapi listbodyapi = Listbodyapi.FromJson(GiteeApi.FromJson(json2).Body);
 
+                if (listbodyapi != null && listbodyapi.Files != null && listbodyapi.Files.Length > 0)
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        int num = 10;
+                        foreach (LFiles file in listbodyapi.Files)
+                        {
+                            Arcdps item = new Arcdps(num, file.Description, file.Name, "", file.Md5, file.Size);
+                            foreach (Asset asset3 in GiteeApi.FromJson(json2).Assets)
+                            {
+                                if (asset3.Name.Equals(item.dps_name, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    item.Urlpath = asset3.BrowserDownloadUrl;
+                                }
+                            }
+                            Global.Arcdpslists.Add(item);
+                            num++;
+                        }
+                    });
+                }
+
                 Dispatcher.Invoke(() =>
                 {
-                    int num = 0;
-                    Global.Arcdpslists.Clear();
-                    foreach (LFiles file in listbodyapi.Files)
-                    {
-                        Global.Arcdpslists.Add(new Arcdps(num, file.Description, file.Name, "", file.Md5, file.Size));
-                        num++;
-                    }
-
-                    foreach (Arcdps arcdpslist in Global.Arcdpslists)
-                    {
-                        foreach (Asset asset3 in GiteeApi.FromJson(json2).Assets)
-                        {
-                            if (asset3.Name.Equals(arcdpslist.dps_name, StringComparison.OrdinalIgnoreCase))
-                            {
-                                arcdpslist.Urlpath = asset3.BrowserDownloadUrl;
-                            }
-                        }
-                    }
-
                     ArcdpslistComboBox.ItemsSource = null;
                     ArcdpslistComboBox.ItemsSource = Global.Arcdpslists;
                     if (Global.Arcdpslists.Count > 0)
@@ -275,20 +293,10 @@ public partial class Settings : Page
                     {
                         HttpResponseMessage val3 = await client.GetAsync(asset4.BrowserDownloadUrl, HttpCompletionOption.ResponseHeadersRead);
                         Global.tuijianarcdpsmd5 = (await val3.Content.ReadAsStringAsync()).Replace("\n", "").Replace("\r", "").Replace(" ", "");
-                    }
-                }
-
-                foreach (Asset asset5 in GiteeApi.FromJson(json2).Assets)
-                {
-                    if (asset5.Name.Equals("d3d11.zip", StringComparison.OrdinalIgnoreCase))
-                    {
-                        Global.lastarcdpsurl = asset5.BrowserDownloadUrl;
-                    }
-                    if (asset5.Name.Equals("d3d11.zip.md5sum", StringComparison.OrdinalIgnoreCase))
-                    {
-                        HttpResponseMessage val4 = await client.GetAsync(asset5.BrowserDownloadUrl, HttpCompletionOption.ResponseHeadersRead);
-                        Global.lastarcdpsmd5 = (await val4.Content.ReadAsStringAsync()).Replace("\n", "").Replace("\r", "").Replace(" ", "");
-                        Global.lastarcdpssiz = 1;
+                        if (Global.Arcdpslists.Count > 0)
+                        {
+                            Global.Arcdpslists[0].Md5st = Global.tuijianarcdpsmd5;
+                        }
                     }
                 }
             }

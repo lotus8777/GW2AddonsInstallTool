@@ -6,7 +6,7 @@ namespace GW2_addons_installtool;
 
 internal class Global
 {
-    public static string Toolversion = "3.2.8";
+    public static string Toolversion = "3.2.9";
     public static string Toolversion_get = string.Empty;
     public static string GamePath = string.Empty;
     public static List<Addon> Addons = new List<Addon>();
@@ -26,7 +26,7 @@ internal class Global
     public static int reshademode;
     public static bool apigetok = false;
     public static bool installlast = false;
-    public static string lastarcdpsurl = "https://gitee.com/jiangyi0923/gw2chajianfile/releases/download/0629/d3d9_last.zip";
+    public static string lastarcdpsurl = "https://gitee.com/xiejunyc/gw2chajianfile/releases/download/0629/d3d11.zip";
     public static string helpinfo = "";
     public static long installtoolsize;
     public static string lastarcdpsmd5 = "";
@@ -63,6 +63,13 @@ internal class Global
             Addons.Add(new Addon(97, "ARCDPS插件包装", _IsSelected: true, ""));
             Addons.Add(new Addon(98, "Nexus核心文件", _IsSelected: true, ""));
             Addons.Add(new Addon(99, "配置文件", _IsSelected: true, ""));
+        }
+
+        if (Arcdpslists.Count == 0)
+        {
+            Arcdpslists.Add(new Arcdps(0, "推荐版本 (自动同步)", "d3d11.zip", "https://gitee.com/xiejunyc/gw2chajianfile/releases/download/0629/d3d11.zip", "", 0));
+            Arcdpslists.Add(new Arcdps(1, "历史稳定版 (d3d11)", "d3d11.zip", "https://gitee.com/xiejunyc/gw2chajianfile/releases/download/0629/d3d11.zip", "", 0));
+            Arcdpslists.Add(new Arcdps(2, "历史备用版 (d3d9)", "d3d9.zip", "https://gitee.com/xiejunyc/gw2chajianfile/releases/download/0629/d3d9.zip", "", 0));
         }
 
         foreach (Addon addon in Addons)
