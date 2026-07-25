@@ -89,7 +89,7 @@
               <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="DPS版本:" FontSize="13" Foreground="#FF4A5568" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,6,0" />
                 <Button Name="installdpsmodeMenuButton" Content="⇌" Width="22" Height="22" Margin="0,0,6,0" Click="installdpsmode_Click" />
-                <ComboBox Name="ArcdpslistComboBox" Width="135" FontSize="12" SelectionChanged="ArcdpslistComboBox_SelectionChanged" />
+                <ComboBox Name="ArcdpslistComboBox" DisplayMemberPath="DisplayText" Width="140" FontSize="12" SelectionChanged="ArcdpslistComboBox_SelectionChanged" />
                 <Border Name="tuijiandps" Background="#EDF2F7" CornerRadius="4" Padding="6,2">
                   <TextBlock Name="labe1_1" Text="推荐版本" FontSize="11" Foreground="#FF2D3748" />
                 </Border>

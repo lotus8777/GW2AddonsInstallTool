@@ -25,7 +25,6 @@ public partial class Settings : Page
         Global.Loadall();
         label.Text = "v" + Global.Toolversion;
         labebox1.Text = string.IsNullOrEmpty(Global.GamePath) ? "未选择游戏目录" : Global.GamePath;
-        tuijiandps.Visibility = Visibility.Hidden;
 
         string arcdpsIni = Path.Combine(Global.GamePath, @"addons\arcdps\arcdps.ini");
         if (File.Exists(arcdpsIni))
@@ -67,6 +66,18 @@ public partial class Settings : Page
             BtnNormal.IsChecked = false;
             BtnTrouble.IsChecked = false;
             nowinstallmodedesc.Text = "Nexus模式";
+        }
+
+        if (Global.installdpsmode == 2)
+        {
+            ArcdpslistComboBox.Visibility = Visibility.Visible;
+            tuijiandps.Visibility = Visibility.Collapsed;
+        }
+        else
+        {
+            Global.installdpsmode = 1;
+            ArcdpslistComboBox.Visibility = Visibility.Collapsed;
+            tuijiandps.Visibility = Visibility.Visible;
         }
 
         Task.Run(() => getwebinfomx());
@@ -119,16 +130,16 @@ public partial class Settings : Page
             {
                 Dispatcher.Invoke(() =>
                 {
-                    if (Global.installdpsmode == 1)
-                    {
-                        ArcdpslistComboBox.Visibility = Visibility.Hidden;
-                        tuijiandps.Visibility = Visibility.Visible;
-                        labe1_1.Text = "推荐版本：" + Global.fileday;
-                    }
-                    else if (Global.installdpsmode == 2)
+                    labe1_1.Text = "推荐版本: " + (string.IsNullOrEmpty(Global.fileday) ? "自动同步" : Global.fileday);
+                    if (Global.installdpsmode == 2)
                     {
                         ArcdpslistComboBox.Visibility = Visibility.Visible;
-                        tuijiandps.Visibility = Visibility.Hidden;
+                        tuijiandps.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        ArcdpslistComboBox.Visibility = Visibility.Collapsed;
+                        tuijiandps.Visibility = Visibility.Visible;
                     }
                 });
 
@@ -152,11 +163,15 @@ public partial class Settings : Page
 
         Dispatcher.Invoke(() =>
         {
+            addons.ItemsSource = null;
             addons.ItemsSource = Global.Addons;
+
+            ArcdpslistComboBox.ItemsSource = null;
             ArcdpslistComboBox.ItemsSource = Global.Arcdpslists;
-            if (ArcdpslistComboBox.Items.Count > 0)
+            if (Global.Arcdpslists.Count > 0)
             {
-                ArcdpslistComboBox.SelectedIndex = Global.selectedarcdpsid;
+                int index = Math.Clamp(Global.selectedarcdpsid, 0, Global.Arcdpslists.Count - 1);
+                ArcdpslistComboBox.SelectedIndex = index;
             }
         });
     }
@@ -257,10 +272,7 @@ public partial class Settings : Page
                         Global.Arcdpslists.Add(new Arcdps(num, file.Description, file.Name, "", file.Md5, file.Size));
                         num++;
                     }
-                });
 
-                Dispatcher.Invoke(() =>
-                {
                     foreach (Arcdps arcdpslist in Global.Arcdpslists)
                     {
                         foreach (Asset asset3 in GiteeApi.FromJson(json2).Assets)
@@ -270,6 +282,13 @@ public partial class Settings : Page
                                 arcdpslist.Urlpath = asset3.BrowserDownloadUrl;
                             }
                         }
+                    }
+
+                    ArcdpslistComboBox.ItemsSource = null;
+                    ArcdpslistComboBox.ItemsSource = Global.Arcdpslists;
+                    if (Global.Arcdpslists.Count > 0)
+                    {
+                        ArcdpslistComboBox.SelectedIndex = Math.Clamp(Global.selectedarcdpsid, 0, Global.Arcdpslists.Count - 1);
                     }
                 });
 
@@ -584,12 +603,12 @@ public partial class Settings : Page
         {
             Global.installdpsmode = 2;
             ArcdpslistComboBox.Visibility = Visibility.Visible;
-            tuijiandps.Visibility = Visibility.Hidden;
+            tuijiandps.Visibility = Visibility.Collapsed;
         }
         else
         {
             Global.installdpsmode = 1;
-            ArcdpslistComboBox.Visibility = Visibility.Hidden;
+            ArcdpslistComboBox.Visibility = Visibility.Collapsed;
             tuijiandps.Visibility = Visibility.Visible;
         }
     }

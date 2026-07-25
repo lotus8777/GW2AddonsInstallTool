@@ -12,6 +12,8 @@ public class Arcdps
     public int Filesize { get; set; }
     public string dps_descr { get; set; } = string.Empty;
 
+    public string DisplayText => string.IsNullOrWhiteSpace(dps_descr) ? dps_name : $"{dps_descr} ({dps_name})";
+
     public Arcdps(int _id, string _dps_name)
     {
         Id = _id;
@@ -27,4 +29,6 @@ public class Arcdps
         Md5st = _md5;
         Filesize = _size;
     }
+
+    public override string ToString() => DisplayText;
 }
