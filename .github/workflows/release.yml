@@ -24,11 +24,11 @@ jobs:
 
       - name: Publish Single-File Executable (x64)
         run: |
-          dotnet publish src/GW2-addons-installtool/GW2-addons-installtool.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o publish-exe
+          dotnet publish src/GW2-addons-installtool/GW2-addons-installtool.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:IncludeAllContentForSelfExtract=true -o publish-exe
 
       - name: Create Zip Package
         run: |
-          Compress-Archive -Path "publish-exe\GW2-addons-installtool.exe" -DestinationPath "GW2-addons-installtool-win-x64.zip"
+          Compress-Archive -Path "publish-exe\*" -DestinationPath "GW2-addons-installtool-win-x64.zip"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -44,8 +44,7 @@ jobs:
             
             ### ✨ 核心更新
             - 基于 **.NET 10.0 WPF** 框架重写。
-            - 彻底移除第三方 Newtonsoft.Json，改用 .NET 原生 `System.Text.Json`。
-            - 修复并优化 VC++ 2015-2022 Redistributable (x64) 运行库识别算法。
+            - 修复 WPF 单文件应用在 Windows 上解压与运行时的崩溃问题。
           files: |
             publish-exe/GW2-addons-installtool.exe
             GW2-addons-installtool-win-x64.zip
