@@ -1,0 +1,51 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publish Single-File Executable (x64)
+        run: |
+          dotnet publish src/GW2-addons-installtool/GW2-addons-installtool.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o publish-exe
+
+      - name: Create Zip Package
+        run: |
+          Compress-Archive -Path "publish-exe\GW2-addons-installtool.exe" -DestinationPath "GW2-addons-installtool-win-x64.zip"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: "激战2插件安装更新工具 ${{ github.ref_name }}"
+          body: |
+            ## 🎮 激战2插件安装与更新工具 (${{ github.ref_name }})
+            
+            ### 📦 下载说明
+            - **`GW2-addons-installtool.exe`**：单文件独立运行版（双击即用，内置 .NET 10 运行库，解压到任意非游戏根目录目录使用）。
+            - **`GW2-addons-installtool-win-x64.zip`**：绿色便携压缩包。
+            
+            ### ✨ 核心更新
+            - 基于 **.NET 10.0 WPF** 框架重写。
+            - 彻底移除第三方 Newtonsoft.Json，改用 .NET 原生 `System.Text.Json`。
+            - 修复并优化 VC++ 2015-2022 Redistributable (x64) 运行库识别算法。
+          files: |
+            publish-exe/GW2-addons-installtool.exe
+            GW2-addons-installtool-win-x64.zip
